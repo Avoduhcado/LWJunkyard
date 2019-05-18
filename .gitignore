@@ -1,4 +1,6 @@
 /target/
-/res/
+/res/audio/
+/res/models/
+/res/textures/
 .settings
 *.log
