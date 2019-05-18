@@ -10,7 +10,6 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
 
 import com.avogine.junkyard.Theater;
-import com.avogine.junkyard.io.Window;
 import com.avogine.junkyard.memory.MemoryManaged;
 import com.avogine.junkyard.scene.Camera;
 import com.avogine.junkyard.scene.Cast;
@@ -40,26 +39,24 @@ import com.avogine.junkyard.scene.render.shaders.SkyboxShader;
 import com.avogine.junkyard.scene.render.util.RenderConstants;
 import com.avogine.junkyard.scene.render.util.VAO;
 import com.avogine.junkyard.scene.text.Text;
+import com.avogine.junkyard.scene.util.Transformation;
 import com.avogine.junkyard.util.MathUtils;
+import com.avogine.junkyard.window.Window;
 
 public class Renderer implements MemoryManaged {
 
+	private Transformation transformation;
+	
 	private SimpleLightingShader entityShader;
-	//private ComplexLightingShader entityShader;
 	private SkyboxShader skyboxShader;
 	private SimpleFontShader fontShader;
 	private ColorShader colorShader;
 	private SimpleOrthoShader guiShader;
 	private DepthShader depthShader;
 	
-//	private ShadowBox shadowBox;
-//	private ShadowMap shadowMap;
 	private List<ShadowBox> shadowBoxes = new ArrayList<>();
 	private ShadowMapCascade shadowMapCascade;
 	private RawMesh guiMesh;
-	
-	//private ShadowMapCascade shadowMapCascade;
-	//private List<ShadowCascade> shadowCascades = new ArrayList<>();
 	
 	// XXX
 	private Cube skyboxMesh;
@@ -75,11 +72,9 @@ public class Renderer implements MemoryManaged {
 	private float ocillate = 0;
 	private int flip = 1;
 	
-	// XXX
-	public Window defaultWindow;
-	public Camera defaultCamera;
-	
 	public Renderer(Window window) {
+		transformation = new Transformation();
+		
 		setupEntityShader();
 		setupSkyboxShader();
 		setupTextShader();
@@ -92,7 +87,6 @@ public class Renderer implements MemoryManaged {
 	private void setupEntityShader() {
 		// Create shader
 		entityShader = new SimpleLightingShader("simpleLightingVertex.glsl", "simpleLightingFragment.glsl", "position", "textureCoords", "normal", "weights", "jointIndices");
-		//entityShader = new ComplexLightingShader("complexLightingVertex.glsl", "complexLightingFragment.glsl", "position", "textureCoords", "normal", "weights", "jointIndices");
 	}
 	
 	private void setupSkyboxShader() {
@@ -111,9 +105,6 @@ public class Renderer implements MemoryManaged {
 	private void setupDepthShader(Window window) {
 		depthShader = new DepthShader("depthVertex.glsl", "depthFragment.glsl", "position", "textureCoords", "normal", "weights", "jointIndices");
 		
-//		shadowBox = new ShadowBox(Window.NEAR_PLANE, Window.FAR_PLANE / 30.0f, window);
-//		shadowMap = new ShadowMap(window);
-		
 		float[] CASCADE_SPLITS = new float[] {Window.FAR_PLANE / 30.0f, Window.FAR_PLANE / 20.0f, Window.FAR_PLANE / 10.0f, Window.FAR_PLANE};
 		float zNear = Window.NEAR_PLANE;
 		for(int i = 0; i < CASCADE_SPLITS.length; i++) {
@@ -122,15 +113,6 @@ public class Renderer implements MemoryManaged {
 			zNear = CASCADE_SPLITS[i];
 		}
 		shadowMapCascade = new ShadowMapCascade(window, CASCADE_SPLITS.length);
-		
-//		float[] CASCADE_SPLITS = new float[] {Window.FAR_PLANE / 20.0f, Window.FAR_PLANE / 10.0f, Window.FAR_PLANE};
-//		float zNear = Window.NEAR_PLANE;
-//		for(int i = 0; i < CASCADE_SPLITS.length; i++) {
-//			ShadowCascade shadowCascade = new ShadowCascade(zNear, CASCADE_SPLITS[i]);
-//			shadowCascades.add(shadowCascade);
-//			zNear = CASCADE_SPLITS[i];
-//		}
-//		shadowMapCascade = new ShadowMapCascade(window, CASCADE_SPLITS.length);
 	}
 	
 	private void setupGuiShader() {
@@ -154,7 +136,6 @@ public class Renderer implements MemoryManaged {
 				0, 1, 2,
 				2, 3, 0
 		});
-//		guiMesh = new RawMesh(rawVao, 2, shadowMap.getShadowTexture());
 		guiMesh = new RawMesh(rawVao, 2, shadowMapCascade.getTextureIds()[3]);
 	}
 	
@@ -165,17 +146,10 @@ public class Renderer implements MemoryManaged {
 	public void render(Window window, Camera camera, Stage stage) {
 		GL11.glViewport(0, 0, window.getWidth(), window.getHeight());
 
-		// XXX ?
-		defaultWindow = window;
-		defaultCamera = camera;
-		
-//		shadowMap.getFbo().bindFramebuffer();
-//		shadowMap.prepare();
 		shadowMapCascade.getFbo().bindFramebuffer();
 		shadowMapCascade.prepare();
 		renderShadows(window, camera, stage);
 		shadowMapCascade.getFbo().unbindFramebuffer();
-//		shadowMap.getFbo().unbindFramebuffer();
 
 		// Update projection matrix once per render cycle
 		window.updateProjectionMatrix();
@@ -185,7 +159,7 @@ public class Renderer implements MemoryManaged {
 		renderStage(window, camera, stage);
 		renderSkybox(window, camera, stage);
 
-		window.updateOrthographicMatrix();
+		transformation.updateOrthographic2DMatrix(0, window.getWidth(), window.getHeight(), 0);
 		
 		renderGui(window, camera);
 		//renderText(window, camera);
@@ -206,15 +180,7 @@ public class Renderer implements MemoryManaged {
 			projectionViewArray[i].mul(shadowBoxes.get(i).getLightViewMatrix());
 		}
 		entityShader.shadowSpaceMatrices.loadMatrixArray(projectionViewArray);
-//		Matrix4f projectionViewMatrix = new Matrix4f();
-//		projectionViewMatrix.set(window.getOrthographicMatrix());
-//		projectionViewMatrix.mul(window.getLightViewMatrix());
-//		entityShader.toShadowMapSpace.loadMatrix(window.getOffsetMatrix().mul(projectionViewMatrix, new Matrix4f()));
-		
-//		GL13.glActiveTexture(GL13.GL_TEXTURE1);
-//		GL11.glBindTexture(GL11.GL_TEXTURE_2D, shadowMap.getShadowTexture());
-//		GL11.glBindTexture(GL11.GL_TEXTURE_2D, shadowMapCascade.getTextureIds()[0]);
-		
+
 		shadowMapCascade.bindTextures(GL13.GL_TEXTURE1);
 		
 		renderLights(camera, stage.getStageLighting(), stage.getCast());
@@ -224,11 +190,7 @@ public class Renderer implements MemoryManaged {
 			Body body = entity.getAs(Body.class);
 			Model model = entity.getAs(Model.class);
 			
-			Matrix4f modelMatrix = new Matrix4f();
-			modelMatrix.translate(body.getPosition());
-			modelMatrix.rotateXYZ(model.getRotation());
-			modelMatrix.scale(body.getScale());
-			entityShader.model.loadMatrix(modelMatrix);
+			entityShader.model.loadMatrix(transformation.buildModelMatrix(body));
 			
 			model.prepare();
 			
@@ -319,7 +281,7 @@ public class Renderer implements MemoryManaged {
 		Matrix4f guiMatrix = new Matrix4f();
 		guiMatrix.translate(new Vector3f(600f, 400f, 0));
 		guiMatrix.scale(new Vector3f(300f));
-		guiShader.projModelMatrix.loadMatrix(window.getOrthographicMatrix().mul(guiMatrix));
+		guiShader.projModelMatrix.loadMatrix(transformation.getOrthographic2DMatrix().mul(guiMatrix));
 		
 		//guiMesh.render();
 		
@@ -343,7 +305,7 @@ public class Renderer implements MemoryManaged {
 		textMatrix.rotateXYZ(text.rotation);
 		textMatrix.translate((float) -text.getBoundingBox().getWidth() / 2, (float) -text.getBoundingBox().getHeight() / 2, 0);
 		textMatrix.scale(text.scale);
-		fontShader.projModelMatrix.loadMatrix(window.getOrthographicMatrix().mul(textMatrix));
+		fontShader.projModelMatrix.loadMatrix(transformation.getOrthographic2DMatrix().mul(textMatrix));
 
 		colorLerpTime = MathUtils.clamp(colorLerpTime + (float) (Theater.getDelta() * colorLerpSlope), 0f, colorLerpDuration);
 		if(colorLerpTime == colorLerpDuration) {
@@ -387,18 +349,14 @@ public class Renderer implements MemoryManaged {
 //		}
 		
 		for(int i = 0; i < shadowBoxes.size(); i++) {
-		//for(int i = 0; i < 1; i++) {
 			ShadowBox cascade = shadowBoxes.get(i);
 			cascade.update(camera);
 			
 			shadowMapCascade.bindTexture(i);
 			GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
 			
-			//window.updateOrthoProjectionMatrix(cascade.getWidth(), cascade.getHeight(), cascade.getLength());
 			for(ComponentMap entity : stage.getCast().getEntitiesWithComponent(DirectionalLight.class, 1)) {
 				DirectionalLight directionalLight = entity.getAs(DirectionalLight.class);
-				//Vector3f lightDirection = new Vector3f(ocillate, directionalLight.getDirection().y, directionalLight.getDirection().z);
-				//window.updateLightViewMatrix(directionalLight.getDirection().negate(new Vector3f()), cascade.getCenter());
 				cascade.updateLightView(directionalLight.getDirection().negate(new Vector3f()));
 			}
 			
@@ -411,13 +369,7 @@ public class Renderer implements MemoryManaged {
 				Body body = entity.getAs(Body.class);
 				Model model = entity.getAs(Model.class);
 	
-				Matrix4f modelMatrix = new Matrix4f();
-				modelMatrix.translate(body.getPosition());
-				modelMatrix.rotateXYZ(model.getRotation());
-				modelMatrix.scale(body.getScale());
-				depthShader.modelViewProjectionMatrix.loadMatrix(projectionViewMatrix.mul(modelMatrix, new Matrix4f()));
-				
-				//model.prepare();
+				depthShader.modelViewProjectionMatrix.loadMatrix(projectionViewMatrix.mul(transformation.buildModelMatrix(body), new Matrix4f()));
 				
 				if(model instanceof Animatable) {
 					AnimatedFrame frame = ((Animatable) model).getCurrentFrame();
@@ -435,46 +387,6 @@ public class Renderer implements MemoryManaged {
 			}
 		}
 		
-//		shadowBox.update(camera);
-//		window.updateOrthoProjectionMatrix(shadowBox.getWidth(), shadowBox.getHeight(), shadowBox.getLength());
-//		for(ComponentMap entity : stage.getCast().getEntitiesWithComponent(DirectionalLight.class, 1)) {
-//			DirectionalLight directionalLight = entity.getAs(DirectionalLight.class);
-//			//Vector3f lightDirection = new Vector3f(ocillate, directionalLight.getDirection().y, directionalLight.getDirection().z);
-//			window.updateLightViewMatrix(directionalLight.getDirection().negate(new Vector3f()), shadowBox.getCenter());
-//		}
-//		
-//		Matrix4f projectionViewMatrix = new Matrix4f();
-//		projectionViewMatrix.set(window.getOrthographicMatrix());
-//		projectionViewMatrix.mul(window.getLightViewMatrix());
-//		
-//		// TODO Should definitely look into batching the rendering so that it renders a model for each model with the unique transform for them and then renders the next unique model
-//		for(ComponentMap entity : stage.getCast().getEntitiesWithComponents(Model.class, Body.class)) {
-//			Body body = entity.getAs(Body.class);
-//			Model model = entity.getAs(Model.class);
-//
-//			Matrix4f modelMatrix = new Matrix4f();
-//			modelMatrix.translate(body.getPosition());
-//			modelMatrix.rotateXYZ(model.getRotation());
-//			modelMatrix.scale(body.getScale());
-//			depthShader.modelViewProjectionMatrix.loadMatrix(projectionViewMatrix.mul(modelMatrix, new Matrix4f()));
-//			
-//			model.prepare();
-//			
-//			if(model instanceof Animatable) {
-//				AnimatedFrame frame = ((Animatable) model).getCurrentFrame();
-//				depthShader.jointsMatrixArray.loadMatrixArray(frame.getJointMatrices());
-//			}
-//
-//			for(Mesh mesh : model.getMeshes()) {
-//				if(mesh.getMaterial().isTextured()) {
-//					// TODO Check for transparency and disable backface culling for this to be working fully
-//					mesh.getMaterial().getTexture().bindToUnit(0);
-//				}
-//				
-//				mesh.render();
-//			}
-//		}
-
 		depthShader.stop();
 	}
 	
@@ -489,7 +401,6 @@ public class Renderer implements MemoryManaged {
 		fontShader.cleanUp();
 		colorShader.cleanUp();
 		
-//		shadowMap.cleanUp();
 		shadowMapCascade.cleanUp();
 	}
 

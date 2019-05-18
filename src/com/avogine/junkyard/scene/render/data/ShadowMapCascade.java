@@ -7,9 +7,9 @@ import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.GL32;
 
-import com.avogine.junkyard.io.Window;
 import com.avogine.junkyard.memory.MemoryManaged;
 import com.avogine.junkyard.scene.render.util.FBO;
+import com.avogine.junkyard.window.Window;
 
 public class ShadowMapCascade implements MemoryManaged {
 

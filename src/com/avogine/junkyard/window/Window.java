@@ -1,10 +1,8 @@
-package com.avogine.junkyard.io;
+package com.avogine.junkyard.window;
 
 import java.nio.IntBuffer;
 
 import org.joml.Matrix4f;
-import org.joml.Vector2f;
-import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWFramebufferSizeCallback;
 import org.lwjgl.glfw.GLFWVidMode;
@@ -13,10 +11,11 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
 import org.lwjgl.system.MemoryStack;
 
+import com.avogine.junkyard.io.Input;
+import com.avogine.junkyard.io.MusicBox;
 import com.avogine.junkyard.io.util.WindowManager;
 import com.avogine.junkyard.memory.MemoryManaged;
 import com.avogine.junkyard.scene.Stage;
-import com.avogine.junkyard.scene.render.data.ShadowBox;
 import com.avogine.junkyard.system.AvoEventQueue;
 import com.avogine.junkyard.util.MathUtils;
 
@@ -26,12 +25,6 @@ public class Window implements MemoryManaged {
 	public static final float FOV = 70;
 	public static final float NEAR_PLANE = 0.1f;
 	public static final float FAR_PLANE = 10000.0f;
-
-	private Matrix4f projectionMatrix;
-	private Matrix4f orthographicMatrix;
-	// XXX
-	private Matrix4f lightViewMatrix;
-	private Matrix4f offsetMatrix;
 
 	// TODO Expose in options
 	private int refreshRate = 60;
@@ -44,6 +37,8 @@ public class Window implements MemoryManaged {
 	private String title;
 
 	private boolean hasFocus = true;
+
+	private Matrix4f projectionMatrix;
 
 	private Input input;
 	private MusicBox musicBox;
@@ -148,9 +143,6 @@ public class Window implements MemoryManaged {
 		GL11.glClearColor((float) MathUtils.clamp((float) Math.random(), 0, 0.75f), (float) Math.random(), (float) Math.random(), 1);
 
 		projectionMatrix = new Matrix4f();
-		orthographicMatrix = new Matrix4f();
-		lightViewMatrix = new Matrix4f();
-		offsetMatrix = createOffset();
 
 		input = new Input(this);
 		musicBox = new MusicBox(this);
@@ -238,117 +230,13 @@ public class Window implements MemoryManaged {
 		return height;
 	}
 
-	// TODO These should probably be moved out of Window at this point and into some sort of utility
-	public Matrix4f updateOrthographicMatrix() {
-		orthographicMatrix.setOrtho2D(0, getWidth(), getHeight(), 0);
-		return orthographicMatrix;
-	}
-	
-	// XXX This might screw up the 2D matrix
-	public Matrix4f updateOrthographicMatrix(float left, float right, float bottom, float top, float zNear, float zFar) {
-		orthographicMatrix.setOrtho(left, right, bottom, top, zNear, zFar);
-		return orthographicMatrix;
-	}
-	
-	/**
-	 * Creates the orthographic projection matrix. This projection matrix
-	 * basically sets the width, length and height of the "view cuboid", based
-	 * on the values that were calculated in the {@link ShadowBox} class.
-	 * 
-	 * @param width
-	 *            - shadow box width.
-	 * @param height
-	 *            - shadow box height.
-	 * @param length
-	 *            - shadow box length.
-	 */
-	public void updateOrthoProjectionMatrix(float width, float height, float length) {
-		orthographicMatrix.identity();
-		orthographicMatrix.m00(2f / width);
-		orthographicMatrix.m11(2f / height);
-		orthographicMatrix.m22(-2f / length);
-		orthographicMatrix.m33(1);
-	}
-
-	public Matrix4f getOrthographicMatrix() {
-		return orthographicMatrix;
-	}
-
 	public Matrix4f updateProjectionMatrix() {
-		/*Matrix4f projectionMatrix = new Matrix4f();
-		float aspectRatio = (float) 1280 / (float) 720;
-		float y_scale = (float) ((1f / Math.tan(Math.toRadians(FOV / 2f))));
-		float x_scale = y_scale / aspectRatio;
-		float frustum_length = FAR_PLANE - NEAR_PLANE;
-
-		projectionMatrix.m00(x_scale);
-		projectionMatrix.m11(y_scale);
-		projectionMatrix.m22(-((FAR_PLANE + NEAR_PLANE) / frustum_length));
-		projectionMatrix.m23(-1);
-		projectionMatrix.m32(-((2 * NEAR_PLANE * FAR_PLANE) / frustum_length));
-		projectionMatrix.m33(0);
-
-		return projectionMatrix;*/
 		float aspectRatio = (float) (getWidth() / getHeight());
 		return projectionMatrix.setPerspective(FOV, aspectRatio, NEAR_PLANE, FAR_PLANE);
 	}
 	
-	public Matrix4f customProjectionMatrix(float near, float far) {
-		float aspectRatio = (float) (getWidth() / getHeight());
-		return projectionMatrix.setPerspective(FOV, aspectRatio, near, far);
-	}
-
 	public Matrix4f getProjectionMatrix() {
 		return projectionMatrix;
-	}
-	
-	/**
-	 * Updates the "view" matrix of the light. This creates a view matrix which
-	 * will line up the direction of the "view cuboid" with the direction of the
-	 * light. The light itself has no position, so the "view" matrix is centered
-	 * at the center of the "view cuboid". The created view matrix determines
-	 * where and how the "view cuboid" is positioned in the world. The size of
-	 * the view cuboid, however, is determined by the projection matrix.
-	 * 
-	 * @param direction
-	 *            - the light direction, and therefore the direction that the
-	 *            "view cuboid" should be pointing.
-	 * @param center
-	 *            - the center of the "view cuboid" in world space.
-	 */
-	public void updateLightViewMatrix(Vector3f direction, Vector3f center) {
-		direction.normalize();
-		center.negate();
-		lightViewMatrix.identity();
-		float pitch = (float) Math.acos(new Vector2f(direction.x, direction.z).length());
-		lightViewMatrix.rotate(pitch, new Vector3f(1, 0, 0));
-		float yaw = (float) Math.toDegrees(((float) Math.atan(Float.isNaN(direction.x / direction.z) ? 0f : direction.x / direction.z)));
-		yaw = direction.z > 0 ? yaw - 180 : yaw;
-		lightViewMatrix.rotate((float) -Math.toRadians(yaw), new Vector3f(0, 1, 0));
-		lightViewMatrix.translate(center);
-	}
-	
-	public Matrix4f getLightViewMatrix() {
-		return lightViewMatrix;
-	}
-	
-	/**
-	 * TODO Move this somewhere else
-	 * Create the offset for part of the conversion to shadow map space. This
-	 * conversion is necessary to convert from one coordinate system to the
-	 * coordinate system that we can use to sample to shadow map.
-	 * 
-	 * @return The offset as a matrix (so that it's easy to apply to other matrices).
-	 */
-	private Matrix4f createOffset() {
-		Matrix4f offset = new Matrix4f();
-		offset.translate(new Vector3f(0.5f, 0.5f, 0.5f));
-		offset.scale(new Vector3f(0.5f, 0.5f, 0.5f));
-		return offset;
-	}
-	
-	public Matrix4f getOffsetMatrix() {
-		return offsetMatrix;
 	}
 
 }

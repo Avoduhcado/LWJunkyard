@@ -2,9 +2,9 @@ package com.avogine.junkyard.scene.render.data;
 
 import org.lwjgl.opengl.GL11;
 
-import com.avogine.junkyard.io.Window;
 import com.avogine.junkyard.memory.MemoryManaged;
 import com.avogine.junkyard.scene.render.util.FBO;
+import com.avogine.junkyard.window.Window;
 
 public class ShadowMap implements MemoryManaged {
 

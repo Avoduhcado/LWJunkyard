@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import com.avogine.junkyard.io.Window;
 import com.avogine.junkyard.scene.render.data.ShadowMap;
 import com.avogine.junkyard.scene.render.shaders.util.DirectionalLightStruct;
 import com.avogine.junkyard.scene.render.shaders.util.MaterialStruct;
@@ -19,6 +18,7 @@ import com.avogine.junkyard.scene.render.shaders.util.UniformMatrix;
 import com.avogine.junkyard.scene.render.shaders.util.UniformSampler;
 import com.avogine.junkyard.scene.render.shaders.util.UniformVec3;
 import com.avogine.junkyard.scene.render.util.RenderConstants;
+import com.avogine.junkyard.window.Window;
 
 // TODO Convert MAX_CONSTS into uniforms and load them at the start
 

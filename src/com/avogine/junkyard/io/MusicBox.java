@@ -15,6 +15,7 @@ import org.lwjgl.openal.EnumerateAllExt;
 
 import com.avogine.junkyard.audio.load.AudioCache;
 import com.avogine.junkyard.memory.MemoryManaged;
+import com.avogine.junkyard.window.Window;
 
 public class MusicBox implements MemoryManaged {
 

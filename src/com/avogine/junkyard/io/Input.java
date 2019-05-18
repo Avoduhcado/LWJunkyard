@@ -17,6 +17,7 @@ import com.avogine.junkyard.io.event.MouseMotionInputListener;
 import com.avogine.junkyard.scene.Cast;
 import com.avogine.junkyard.scene.entity.Body;
 import com.avogine.junkyard.scene.entity.event.SpeedChangeEvent;
+import com.avogine.junkyard.window.Window;
 import com.bulletphysics.linearmath.DebugDrawModes;
 
 public class Input {

@@ -3,19 +3,17 @@ package com.avogine.junkyard;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWErrorCallback;
 
-import com.avogine.junkyard.io.Window;
 import com.avogine.junkyard.io.event.TimeEvent;
 import com.avogine.junkyard.io.util.WindowManager;
 import com.avogine.junkyard.memory.MemoryManaged;
 import com.avogine.junkyard.system.AvoEventQueue;
 import com.avogine.junkyard.system.TimeWizard;
+import com.avogine.junkyard.window.Window;
 
 public class Theater implements MemoryManaged {
 
 	private static final long ONE_MILLION = 1000000L;
 	private static final double ONE_THOUSAND = 1000.0;
-	
-	//public static final Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 	
 	private static double currentTime;
 	private static double lastTime;

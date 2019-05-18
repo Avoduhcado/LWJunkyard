@@ -1,8 +1,8 @@
 package com.avogine.junkyard.scene;
 
+import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
-import com.avogine.junkyard.io.Window;
 import com.avogine.junkyard.memory.MemoryManaged;
 import com.avogine.junkyard.scene.audio.BackgroundMusic;
 import com.avogine.junkyard.scene.entity.Body;
@@ -17,14 +17,12 @@ import com.avogine.junkyard.scene.entity.render.AnimatedModel;
 import com.avogine.junkyard.scene.entity.render.StaticModel;
 import com.avogine.junkyard.scene.entity.render.TerrainModel;
 import com.avogine.junkyard.scene.light.StageLighting;
-import com.avogine.junkyard.scene.render.AvoDebugDraw;
 import com.avogine.junkyard.scene.render.Renderer;
 import com.avogine.junkyard.scene.render.load.ModelInfo;
+import com.avogine.junkyard.window.Window;
 
-public class Stage implements MemoryManaged {
+public class Stage extends Scene implements MemoryManaged {
 
-	//private static final Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
-	
 	private Window window;
 
 	private Camera camera;
@@ -35,9 +33,7 @@ public class Stage implements MemoryManaged {
 	private StageLighting lighting;
 	private Physics physics;
 	private Followers followers;
-	
-	private Model treeModel;
-	
+		
 	private BackgroundMusic bgm;
 		
 	public Stage(Window window) {
@@ -53,13 +49,11 @@ public class Stage implements MemoryManaged {
 		bgm = new BackgroundMusic("menu");
 		//bgm.play();
 		
-		this.camera = new Camera(window, new Vector3f(0, 100, 50), new Vector3f(), 0f);
+		this.camera = new Camera(window, new Vector3f(0, 100, 50), new Quaternionf(), 0f);
 		cast.addComponent(Cast.CAMERA_ID, camera);
 		
 		renderer = new Renderer(window);
-		
-		physics.getWorld().setDebugDrawer(new AvoDebugDraw(renderer));
-		
+				
 		int entity = cast.newEntity();
 		Body entityBody = new StaticBody(entity, new Vector3f(10, 150, 0));
 		cast.addComponent(entity, new AnimatedModel(entity, new ModelInfo("robutt11.fbx")));
@@ -80,20 +74,13 @@ public class Stage implements MemoryManaged {
 		//cast.addComponent(Cast.CAMERA_ID, new Follower(Cast.CAMERA_ID, entity));
 		
 		entity = cast.newEntity();
-		treeModel = new StaticModel(entity, new ModelInfo("bigTree.obj"));
+		Model treeModel = new StaticModel(entity, new ModelInfo("bigTree.obj"));
 		cast.addComponent(entity, treeModel);
 		Body treeBody = new StaticBody(entity, new Vector3f(-250, -5, -200));
 		treeBody.setScale(new Vector3f(10f));
 		cast.addComponent(entity, treeBody);
 		
 		/* TERRAIN */
-//		int ground = cast.newEntity();
-//		TerrainModel groundModel = new TerrainModel(ground, "");
-//		Body groundBody = new StaticBody(ground, new Vector3f(-512, 0, -512));
-//		cast.addComponent(ground, groundModel);
-//		cast.addComponent(ground, groundBody);
-//		cast.addComponent(ground, new Collider(ground, physics.getWorld(), groundModel.getMeshInterface(), groundBody));
-
 		int ground;
 		TerrainModel groundModel;
 		Body groundBody;
@@ -172,16 +159,11 @@ public class Stage implements MemoryManaged {
 	
 	public void render() {
 		renderer.render(window, camera, this);
-		// TODO I think we batch/instance this here?
-		//entities.stream().forEach(e -> render.render(e, camera));
-		//render.renderScene(this);
 		
 		physics.getWorld().debugDrawWorld();
 	}
 	
-	public void update() {
-		//treeModel.setRotation(new Vector3f(0, treeModel.getRotation().y + Theater.getDeltaChange(1f), 0));
-		
+	public void update() {		
 		physics.doPhysics();
 		lighting.doLighting();
 		followers.followTheLeader();

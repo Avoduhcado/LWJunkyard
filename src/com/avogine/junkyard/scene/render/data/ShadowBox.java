@@ -5,8 +5,8 @@ import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 
-import com.avogine.junkyard.io.Window;
 import com.avogine.junkyard.scene.Camera;
+import com.avogine.junkyard.window.Window;
 
 /**
  * Represents the 3D cuboidal area of the world in which objects will cast
@@ -26,7 +26,6 @@ public class ShadowBox {
 	private static final float OFFSET = 15;
 	private static final Vector3f UP = new Vector3f(0, 1, 0);
 	private static final Vector3f FORWARD = new Vector3f(0, 0, -1);
-	//public static final float SHADOW_DISTANCE = 300;
 
 	private float zNear, zFar;
 	private float minX, maxX;
@@ -235,7 +234,6 @@ public class ShadowBox {
 		Vector3f point = startPoint.add(new Vector3f(direction.x * width, direction.y * width, direction.z * width),
 				new Vector3f());
 		Vector4f point4f = new Vector4f(point.x, point.y, point.z, 1f);
-		//window.getLightViewMatrix().transform(point4f, point4f);
 		lightViewMatrix.transform(point4f, point4f);
 		return point4f;
 	}

@@ -3,6 +3,7 @@ package com.avogine.junkyard.scene.entity;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 import com.avogine.junkyard.scene.entity.event.MovementEvent;
@@ -10,9 +11,8 @@ import com.avogine.junkyard.scene.entity.event.MovementEvent;
 public abstract class Body extends EntityComponent {
 
 	protected Vector3f position = new Vector3f();
-	// TODO Quaternion?
 	/** Pitch / Yaw / Roll */
-	protected Vector3f rotation = new Vector3f();
+	protected Quaternionf rotation = new Quaternionf();
 	
 	protected Vector3f scale = new Vector3f(1);
 	
@@ -33,11 +33,11 @@ public abstract class Body extends EntityComponent {
 		movementListeners.stream().forEach(e -> e.fireEvent(event));
 	}
 	
-	public Vector3f getRotation() {
+	public Quaternionf getRotation() {
 		return rotation;
 	}
 	
-	public void setRotation(Vector3f rotation) {
+	public void setRotation(Quaternionf rotation) {
 		this.rotation = rotation;
 	}
 	

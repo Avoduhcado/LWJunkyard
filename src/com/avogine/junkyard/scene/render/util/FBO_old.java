@@ -11,8 +11,8 @@ import org.lwjgl.opengl.GL14;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
 
-import com.avogine.junkyard.io.Window;
 import com.avogine.junkyard.memory.MemoryManaged;
+import com.avogine.junkyard.window.Window;
 
 public class FBO_old implements MemoryManaged {
 

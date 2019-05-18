@@ -1,5 +1,6 @@
 package com.avogine.junkyard.scene.entity.body;
 
+import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 import com.avogine.junkyard.scene.entity.Body;
@@ -11,14 +12,14 @@ public class Follower extends EntityComponent {
 	private int leader;
 	
 	private Vector3f followPosition;
-	private Vector3f followRotation;
+	private Quaternionf followRotation;
 	
 	public Follower(int entity, int leader) {
 		super(entity);
 		this.leader = leader;
 		
 		this.followPosition = new Vector3f(0, 30, -35);
-		this.followRotation = new Vector3f(25, 180, 0);
+		this.followRotation = new Quaternionf(25, 180, 0, 1);
 	}
 
 	public void follow(Body ours, Body theirs) {

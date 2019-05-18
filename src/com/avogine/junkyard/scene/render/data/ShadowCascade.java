@@ -4,7 +4,7 @@ import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 
-import com.avogine.junkyard.io.Window;
+import com.avogine.junkyard.window.Window;
 
 public class ShadowCascade {
 

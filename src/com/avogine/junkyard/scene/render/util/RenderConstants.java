@@ -1,6 +1,6 @@
 package com.avogine.junkyard.scene.render.util;
 
-import com.avogine.junkyard.io.Window;
+import com.avogine.junkyard.window.Window;
 
 public class RenderConstants {
 

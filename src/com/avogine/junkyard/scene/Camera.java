@@ -1,17 +1,18 @@
 package com.avogine.junkyard.scene;
 
 import org.joml.Matrix4f;
+import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.openal.AL10;
 
-import com.avogine.junkyard.io.Window;
 import com.avogine.junkyard.io.event.KeyInputEvent;
 import com.avogine.junkyard.io.event.KeyInputListener;
 import com.avogine.junkyard.io.event.MouseMotionInputEvent;
 import com.avogine.junkyard.io.event.MouseMotionInputListener;
 import com.avogine.junkyard.scene.entity.body.KineticBody;
 import com.avogine.junkyard.util.MathUtils;
+import com.avogine.junkyard.window.Window;
 
 public class Camera extends KineticBody implements MouseMotionInputListener, KeyInputListener {
 
@@ -25,10 +26,10 @@ public class Camera extends KineticBody implements MouseMotionInputListener, Key
 	private final float default_camera_speed = 60f;
 	private float masterListenerVolume = 0.1f;
 	
-	public Camera(Window window, Vector3f position, Vector3f rotation, float radius) {
+	public Camera(Window window, Vector3f position, Quaternionf rotation, float radius) {
 		super(Cast.CAMERA_ID);
-		this.position = position;
-		this.rotation = rotation;
+		this.position.set(position);
+		this.rotation.set(rotation);
 		followRadius = radius;
 		
 		setSpeed(default_camera_speed);

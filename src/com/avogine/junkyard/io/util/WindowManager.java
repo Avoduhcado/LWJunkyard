@@ -5,7 +5,7 @@ import java.util.HashMap;
 
 import org.lwjgl.glfw.GLFW;
 
-import com.avogine.junkyard.io.Window;
+import com.avogine.junkyard.window.Window;
 
 public class WindowManager {
 
