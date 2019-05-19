@@ -1,7 +1,10 @@
 package com.avogine.junkyard;
 
+import org.apache.log4j.PropertyConfigurator;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWErrorCallback;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.avogine.junkyard.io.event.TimeEvent;
 import com.avogine.junkyard.io.util.WindowManager;
@@ -12,6 +15,8 @@ import com.avogine.junkyard.window.Window;
 
 public class Theater implements MemoryManaged {
 
+	private static final Logger logger = LoggerFactory.getLogger(Theater.class);
+	
 	private static final long ONE_MILLION = 1000000L;
 	private static final double ONE_THOUSAND = 1000.0;
 	
@@ -34,20 +39,12 @@ public class Theater implements MemoryManaged {
 			throw new IllegalStateException("Failed to initialize GLFW!");
 		}
 		
-		/*try {
-			AvoLog.setup();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}*/
-				
 		WindowManager.requestNewWindow();
 	}
 	
 	private void play() {
 		lastTime = getTime();
-		//LOGGER.setLevel(Level.INFO);
-		//LOGGER.info("Time: " + lastTime);
-		System.out.println("Time: " + lastTime);
+		logger.info("Time: " + lastTime);
 		
 		while(!WindowManager.getWindows().isEmpty()) {
 			doFps();
@@ -137,6 +134,8 @@ public class Theater implements MemoryManaged {
 	}
 	
 	public static void main(String[] args) {
+		PropertyConfigurator.configure("log4j.properties");
+		
 		Theater theater = new Theater();
 		theater.play();
 	}
