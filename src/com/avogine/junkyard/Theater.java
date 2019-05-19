@@ -65,6 +65,9 @@ public class Theater implements MemoryManaged {
 		cleanUp();
 	}
 	
+	/**
+	 * TODO Move this into the window class, why would we have multiple windows but only one FPS??
+	 */
 	private void doFps() {
 		currentTime = getTime();
 		// TODO Warn of slow frame time?
@@ -73,6 +76,7 @@ public class Theater implements MemoryManaged {
 			System.out.println("We slow boys");
 		}*/
 		delta = currentTime - lastTime;
+		// TODO but keep this somewhere centralized, we don't need a separate time wizard per window
 		TimeWizard.fireEvent(new TimeEvent(delta));
 		lastTime = currentTime;
 		frameTime += delta;
