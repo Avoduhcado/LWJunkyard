@@ -8,12 +8,22 @@ import java.util.logging.SimpleFormatter;
 
 public class AvoLog {
 
-	static private FileHandler fileTxt;
-	static private SimpleFormatter formatterTxt;
+	private static FileHandler fileTxt;
+	private static SimpleFormatter formatterTxt;
+	
+	private static Logger logger;
 
-	static public void setup() throws IOException {
+	static {
+		try {
+			setup();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	static protected void setup() throws IOException {
 		// get the global logger to configure it
-		Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+		logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
 		// TODO Re-enable this but enable console logging if in debug mode
 		// suppress the logging output to the console
@@ -24,13 +34,32 @@ public class AvoLog {
 		}*/
 
 		logger.setLevel(Level.INFO);
-		fileTxt = new FileHandler("Logging.txt", 16 * 1024 * 1024, 1, true);
+		fileTxt = new FileHandler("avolog.log", 16 * 1024 * 1024, 1, true);
 
 		// create a TXT formatter
 		formatterTxt = new SimpleFormatter();
 		fileTxt.setFormatter(formatterTxt);
 		logger.addHandler(fileTxt);
+	}
+	
+	public static void log(Level logLevel, String message, Object category) {
+		logger.log(logLevel, message, category);
+	}
 
+	public static void debug(String message, Object category) {
+		log(Level.FINE, message, category);
+	}
+	
+	public static void info(String message, Object category) {
+		log(Level.INFO, message, category);
+	}
+	
+	public static void warn(String message, Object category) {
+		log(Level.WARNING, message, category);
+	}
+	
+	public static void severe(String message, Object category) {
+		log(Level.SEVERE, message, category);
 	}
 
 }
