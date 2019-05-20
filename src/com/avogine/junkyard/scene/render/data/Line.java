@@ -8,7 +8,6 @@ import org.lwjgl.opengl.GL11;
 import com.avogine.junkyard.memory.MemoryManaged;
 import com.avogine.junkyard.scene.entity.Renderable;
 import com.avogine.junkyard.scene.render.util.VAO;
-import com.avogine.junkyard.util.ConversionUtils;
 
 public class Line implements Renderable, MemoryManaged {
 
@@ -44,10 +43,6 @@ public class Line implements Renderable, MemoryManaged {
 		getVao().createIndexBuffer(indices);
 		
 		getVao().unbind();
-	}
-	
-	public Line(javax.vecmath.Vector3f start, javax.vecmath.Vector3f end, javax.vecmath.Vector3f color) {
-		this(ConversionUtils.convertVecmathToJoml(start), ConversionUtils.convertVecmathToJoml(end), ConversionUtils.convertVecmathToJoml(color));
 	}
 	
 	@Override

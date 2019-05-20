@@ -18,7 +18,6 @@ import com.avogine.junkyard.scene.Cast;
 import com.avogine.junkyard.scene.entity.Body;
 import com.avogine.junkyard.scene.entity.event.SpeedChangeEvent;
 import com.avogine.junkyard.window.Window;
-import com.bulletphysics.linearmath.DebugDrawModes;
 
 public class Input {
 
@@ -53,11 +52,6 @@ public class Input {
 				break;
 			case GLFW.GLFW_KEY_F3:
 				if(action == GLFW.GLFW_RELEASE) {
-					if(window.getStage().getPhysics().getWorld().getDebugDrawer().getDebugMode() > 0) {
-						window.getStage().getPhysics().getWorld().getDebugDrawer().setDebugMode(DebugDrawModes.NO_DEBUG);
-					} else {
-						window.getStage().getPhysics().getWorld().getDebugDrawer().setDebugMode(DebugDrawModes.DRAW_WIREFRAME);
-					}
 				}
 				break;
 			case GLFW.GLFW_KEY_F4:

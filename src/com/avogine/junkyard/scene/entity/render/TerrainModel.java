@@ -1,12 +1,12 @@
 package com.avogine.junkyard.scene.entity.render;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.joml.Vector3f;
+import org.ode4j.ode.DTriMeshData;
+import org.ode4j.ode.OdeHelper;
 
 import com.avogine.junkyard.scene.entity.Model;
 import com.avogine.junkyard.scene.entity.event.EntityEvent;
@@ -15,8 +15,6 @@ import com.avogine.junkyard.scene.render.data.Mesh;
 import com.avogine.junkyard.scene.render.load.ModelInfo;
 import com.avogine.junkyard.scene.render.load.TextureCache;
 import com.avogine.junkyard.scene.terrain.HeightsGenerator;
-import com.bulletphysics.collision.shapes.StridingMeshInterface;
-import com.bulletphysics.collision.shapes.TriangleIndexVertexArray;
 
 public class TerrainModel extends Model {
 
@@ -27,6 +25,9 @@ public class TerrainModel extends Model {
 	private static final int TERRAIN_SIZE_Z = 100;
 	private static final float TILE_SIZE = 8f;
 	private static final int SEED = 343;
+	
+	private float[] vertices;
+	private int[] meshIndices;
 	
 	public TerrainModel(int entity, ModelInfo modelInfo) {
 		super(entity, modelInfo);
@@ -69,11 +70,14 @@ public class TerrainModel extends Model {
 			indices.add(i);
 		}
 		
+		vertices = ArrayUtils.toPrimitive(positions.stream().toArray(Float[]::new));
+		meshIndices = indices.stream().mapToInt(Integer::intValue).toArray();
+		
 		Mesh terrainMesh = new Mesh(
-				ArrayUtils.toPrimitive(positions.stream().toArray(Float[]::new)), 
+				vertices, 
 				ArrayUtils.toPrimitive(texCoords.stream().toArray(Float[]::new)),
 				ArrayUtils.toPrimitive(normals.stream().toArray(Float[]::new)), 
-				indices.stream().mapToInt(Integer::intValue).toArray());
+				meshIndices);
 		terrainMesh.setMaterial(new Material(TextureCache.getTexture("grass.png")));
 		
 		meshes = new Mesh[1];
@@ -94,51 +98,12 @@ public class TerrainModel extends Model {
 		return generator.generateHeight(x, z);
 	}
 	
-	public StridingMeshInterface getMeshInterface() {
-		int totalVerts = TERRAIN_SIZE_X * TERRAIN_SIZE_Z;
-		int totalTriangles = 2 * (TERRAIN_SIZE_X - 1) * (TERRAIN_SIZE_Z - 1);
-
-		int vertStride = 3 * 4;
-		int indexStride = 3 * 4;
+	public DTriMeshData getTriMeshData() {
+		DTriMeshData triMeshData = OdeHelper.createTriMeshData();
 		
-		ByteBuffer gVertices = ByteBuffer.allocateDirect(totalVerts * 3 * 4).order(ByteOrder.nativeOrder());
-		ByteBuffer gIndices = ByteBuffer.allocateDirect(totalTriangles * 3 * 4).order(ByteOrder.nativeOrder());
-		
-		Vector3f tmp = new Vector3f();
+		triMeshData.build(vertices, meshIndices);
 
-		for (int i = 0; i < TERRAIN_SIZE_X; i++) {
-			for (int j = 0; j < TERRAIN_SIZE_Z; j++) {
-				tmp.set(
-						i * TILE_SIZE,
-						getHeight(i, j, heightGen),
-						//waveheight * (float) Math.sin((float) i + offset) * (float) Math.cos((float) j + offset),
-						j * TILE_SIZE);
-
-				int index = i + j * TERRAIN_SIZE_X;
-				gVertices.putFloat((index*3 + 0) * 4, tmp.x);
-				gVertices.putFloat((index*3 + 1) * 4, tmp.y);
-				gVertices.putFloat((index*3 + 2) * 4, tmp.z);
-			}
-		}
-		
-		gIndices.clear();
-		for(int i = 0; i < TERRAIN_SIZE_X - 1; i++) {
-			for(int j = 0; j < TERRAIN_SIZE_Z - 1; j++) {
-				gIndices.putInt(j * TERRAIN_SIZE_X + i);
-				gIndices.putInt(j * TERRAIN_SIZE_X + i + 1);
-				gIndices.putInt((j + 1) * TERRAIN_SIZE_X + i + 1);
-
-				gIndices.putInt(j * TERRAIN_SIZE_X + i);
-				gIndices.putInt((j + 1) * TERRAIN_SIZE_X + i + 1);
-				gIndices.putInt((j + 1) * TERRAIN_SIZE_X + i);
-			}
-		}
-		gIndices.flip();
-		
-		return new TriangleIndexVertexArray(totalTriangles,
-				gIndices,
-				indexStride,
-				totalVerts, gVertices, vertStride);
+		return triMeshData;
 	}
 	
 	@Override
