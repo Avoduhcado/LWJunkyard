@@ -1,6 +1,5 @@
 package com.avogine.junkyard.audio.load;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
@@ -15,7 +14,7 @@ public class AudioCache implements MemoryManaged {
 	private static AudioCache cache = new AudioCache();
 	private static Properties audioDirectory = new Properties();
 	static {
-		try (InputStream input = new FileInputStream("res/audio.properties")) {
+		try (InputStream input = AudioCache.class.getClassLoader().getResourceAsStream("audio.properties")) {
 			audioDirectory.load(input);	
 		} catch (IOException e) {
 			System.err.println("Failed to load audio properties!");

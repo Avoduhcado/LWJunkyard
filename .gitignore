@@ -1,6 +1,6 @@
 /target/
-/res/audio/
-/res/models/
-/res/textures/
+/src/main/resources/audio/
+/src/main/resources/models/
+/src/main/resources/textures/
 .settings
 *.log

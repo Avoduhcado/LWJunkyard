@@ -23,7 +23,7 @@ public class WaveData extends BufferData<ByteBuffer> {
 	}
 
 	public static WaveData create(String file) {
-		String filePath = System.getProperty("user.dir") + "/res/" + ResourceConstants.AUDIO_PATH + file;
+		String filePath = ResourceConstants.AUDIO_PATH + file;
 		
 		try(FileInputStream stream = new FileInputStream(filePath);
 				InputStream bufferedInput = new BufferedInputStream(stream)) {

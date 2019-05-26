@@ -1,6 +1,5 @@
 package com.avogine.junkyard.util;
 
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -44,7 +43,7 @@ public class IOUtil {
 				}
 			}
 		} else {
-			try (InputStream source = new FileInputStream(System.getProperty("user.dir") + "/res/" + resource);
+			try (InputStream source = IOUtil.class.getClassLoader().getResourceAsStream(resource);
 					ReadableByteChannel rbc = Channels.newChannel(source);) {
 				buffer = BufferUtils.createByteBuffer(bufferSize);
 

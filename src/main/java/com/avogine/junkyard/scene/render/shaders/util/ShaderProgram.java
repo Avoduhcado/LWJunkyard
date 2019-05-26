@@ -1,7 +1,6 @@
 package com.avogine.junkyard.scene.render.shaders.util;
 
 import java.io.BufferedReader;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
@@ -59,7 +58,8 @@ public abstract class ShaderProgram implements MemoryManaged {
 	protected static int loadShader(String file, int type) {
 		StringBuilder shaderSource = new StringBuilder();
 		String shaderFile = ResourceConstants.SHADER_PATH + file;
-		try(BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(System.getProperty("user.dir") + "/res/" + shaderFile)))) {
+
+		try (BufferedReader reader = new BufferedReader(new InputStreamReader(ShaderProgram.class.getClassLoader().getResourceAsStream(shaderFile)))) {
 			String line;
 			while((line = reader.readLine()) != null) {
 				shaderSource.append(line).append("\n");
