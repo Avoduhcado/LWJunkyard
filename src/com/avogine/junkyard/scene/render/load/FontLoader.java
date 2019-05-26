@@ -18,10 +18,6 @@ public class FontLoader {
 		Map<Character, Glyph> glyphMap = new HashMap<>();
 		List<Texture> textures = new ArrayList<>();
 		
-		/*try (DataInputStream dis = new DataInputStream(System.getProperty("user.dir") + "/res/" + ResourceConstants.TEXTURE_PATH + fontName + ".fnt")) {
-			
-		}*/
-		
 		try (FileInputStream fis = new FileInputStream(System.getProperty("user.dir") + "/res/" + ResourceConstants.TEXTURE_PATH + fontName + ".fnt")) {
 			byte[] byteArray = new byte[fis.available()];
 			int offset = 0;

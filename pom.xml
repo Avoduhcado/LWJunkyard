@@ -9,14 +9,15 @@
     <resources>
     	<resource>
     		<directory>res</directory>
+    		<targetPath>../res</targetPath>
     	</resource>
     </resources>
     <plugins>
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.7.0</version>
+        <version>3.8.0</version>
         <configuration>
-          <release>9</release>
+          <release>11</release>
         </configuration>
       </plugin>
       <plugin>

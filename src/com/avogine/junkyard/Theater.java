@@ -1,6 +1,5 @@
 package com.avogine.junkyard;
 
-import org.apache.log4j.PropertyConfigurator;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.slf4j.Logger;
@@ -26,13 +25,13 @@ public class Theater implements MemoryManaged {
 	private static double delta;
 	
 	private static int fps;
-	
+		
 	private double refreshRate = 60;
 	private double frameLag = 0.0;
 	private long milliSleep;
 	private int nanoSleep;
 			
-	public Theater() {
+	public Theater() {		
 		GLFWErrorCallback.createPrint(System.err).set();
 		
 		if(!GLFW.glfwInit()) {
@@ -134,8 +133,6 @@ public class Theater implements MemoryManaged {
 	}
 	
 	public static void main(String[] args) {
-		PropertyConfigurator.configure("log4j.properties");
-		
 		Theater theater = new Theater();
 		theater.play();
 	}
