@@ -1,7 +1,6 @@
 package com.avogine.junkyard.audio.data;
 
 import java.io.BufferedInputStream;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -15,6 +14,7 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import org.lwjgl.BufferUtils;
 
 import com.avogine.junkyard.util.ResourceConstants;
+import com.avogine.junkyard.util.ResourceUtil;
 
 public class WaveData extends BufferData<ByteBuffer> {
 
@@ -25,7 +25,7 @@ public class WaveData extends BufferData<ByteBuffer> {
 	public static WaveData create(String file) {
 		String filePath = ResourceConstants.AUDIO_PATH + file;
 		
-		try(FileInputStream stream = new FileInputStream(filePath);
+		try(InputStream stream = ResourceUtil.getInputStreamForResource(filePath);
 				InputStream bufferedInput = new BufferedInputStream(stream)) {
 			try (AudioInputStream audioStream = AudioSystem.getAudioInputStream(bufferedInput)) {
 				AudioFormat audioFormat = audioStream.getFormat();
