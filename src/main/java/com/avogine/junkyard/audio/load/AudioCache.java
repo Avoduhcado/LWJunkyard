@@ -8,13 +8,14 @@ import java.util.Properties;
 
 import com.avogine.junkyard.audio.AudioBuffer;
 import com.avogine.junkyard.memory.MemoryManaged;
+import com.avogine.junkyard.util.ResourceUtil;
 
 public class AudioCache implements MemoryManaged {
 
 	private static AudioCache cache = new AudioCache();
 	private static Properties audioDirectory = new Properties();
 	static {
-		try (InputStream input = AudioCache.class.getClassLoader().getResourceAsStream("audio.properties")) {
+		try (InputStream input = ResourceUtil.getInputStreamForResource("audio.properties")) {
 			audioDirectory.load(input);	
 		} catch (IOException e) {
 			System.err.println("Failed to load audio properties!");

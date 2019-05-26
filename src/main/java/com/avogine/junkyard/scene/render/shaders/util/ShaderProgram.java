@@ -9,6 +9,7 @@ import org.lwjgl.opengl.GL20;
 
 import com.avogine.junkyard.memory.MemoryManaged;
 import com.avogine.junkyard.util.ResourceConstants;
+import com.avogine.junkyard.util.ResourceUtil;
 
 public abstract class ShaderProgram implements MemoryManaged {
 
@@ -59,13 +60,13 @@ public abstract class ShaderProgram implements MemoryManaged {
 		StringBuilder shaderSource = new StringBuilder();
 		String shaderFile = ResourceConstants.SHADER_PATH + file;
 
-		try (BufferedReader reader = new BufferedReader(new InputStreamReader(ShaderProgram.class.getClassLoader().getResourceAsStream(shaderFile)))) {
+		try (BufferedReader reader = new BufferedReader(new InputStreamReader(ResourceUtil.getInputStreamForResource(shaderFile)))) {
 			String line;
 			while((line = reader.readLine()) != null) {
 				shaderSource.append(line).append("\n");
 			}
 		} catch (IOException | NullPointerException e) {
-			System.err.println("Could not read file! " + file);
+			System.err.println("Could not read file! " + shaderFile);
 			e.printStackTrace();
 			System.exit(1);
 		}

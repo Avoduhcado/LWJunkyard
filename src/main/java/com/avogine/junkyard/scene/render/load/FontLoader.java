@@ -11,6 +11,7 @@ import com.avogine.junkyard.scene.render.data.Font;
 import com.avogine.junkyard.scene.render.data.Glyph;
 import com.avogine.junkyard.scene.render.data.Texture;
 import com.avogine.junkyard.util.ResourceConstants;
+import com.avogine.junkyard.util.ResourceUtil;
 
 public class FontLoader {
 
@@ -19,7 +20,7 @@ public class FontLoader {
 		List<Texture> textures = new ArrayList<>();
 		String fontFile = ResourceConstants.TEXTURE_PATH + fontName + ".fnt";
 		
-		try (InputStream is = FontLoader.class.getClassLoader().getResourceAsStream(fontFile)) {
+		try (InputStream is = ResourceUtil.getInputStreamForResource(fontFile)) {
 			byte[] byteArray = new byte[is.available()];
 			int offset = 0;
 			String[] images = null;

@@ -43,7 +43,7 @@ public class IOUtil {
 				}
 			}
 		} else {
-			try (InputStream source = IOUtil.class.getClassLoader().getResourceAsStream(resource);
+			try (InputStream source = ResourceUtil.getInputStreamForResource(resource);
 					ReadableByteChannel rbc = Channels.newChannel(source);) {
 				buffer = BufferUtils.createByteBuffer(bufferSize);
 

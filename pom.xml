@@ -5,6 +5,21 @@
   <artifactId>LWJunkyard</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <build>
+   <resources>
+   <resource>
+     <directory>src/main/resources</directory>
+       <includes>
+         <include>log4j.properties</include>
+       </includes>
+    </resource>
+    <resource>
+     <directory>src/main/resources</directory>
+       <excludes>
+         <exclude>log4j.properties</exclude>
+       </excludes>
+     <targetPath>../resources</targetPath>
+    </resource>
+   </resources>
     <plugins>
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
@@ -35,7 +50,6 @@
 			</executions>
 		</plugin>
     </plugins>
-    
   </build>
   
   	<properties>
