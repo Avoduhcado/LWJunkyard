@@ -154,24 +154,10 @@ float calcShadow(vec4 position, int idx) {
 
     float shadowFactor = 0.0;
     vec2 inc = 1.0 / textureSize(shadowMaps[idx], 0);
-//    if (idx == 0) {
-//        inc = 1.0 / textureSize(shadowMaps[0], 0);
-//    } else if (idx == 1) {
-//        inc = 1.0 / textureSize(shadowMap_1, 0);
-//    } else {
-//        inc = 1.0 / textureSize(shadowMap_2, 0);
-//    }
+
     for(int row = -1; row <= 1; ++row) {
         for(int col = -1; col <= 1; ++col) {
             float textDepth = texture(shadowMaps[idx], projCoords.xy + vec2(row, col) * inc).r;
-            
-//            if (idx == 0) {
-//                textDepth = texture(shadowMap_0, projCoords.xy + vec2(row, col) * inc).r; 
-//            } else if (idx == 1) {
-//                textDepth = texture(shadowMap_1, projCoords.xy + vec2(row, col) * inc).r; 
-//            } else {
-//                textDepth = texture(shadowMap_2, projCoords.xy + vec2(row, col) * inc).r; 
-//            }
             shadowFactor += projCoords.z - bias > textDepth ? 1.0 : 0.0;        
         }    
     }

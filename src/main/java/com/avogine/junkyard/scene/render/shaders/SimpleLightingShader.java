@@ -76,6 +76,7 @@ public class SimpleLightingShader extends ShaderProgram {
 			uniforms.addAll(spotLight.getAllUniforms());
 		}
 		// Just implement a custom storeUniformLocation method in these structs durr
+		uniforms.addAll(Arrays.asList(cascadeFarPlanes));
 		uniforms.addAll(Arrays.asList(shadowMaps));
 		uniforms.addAll(directionalLight.getAllUniforms());
 		uniforms.addAll(material.getAllUniforms());
