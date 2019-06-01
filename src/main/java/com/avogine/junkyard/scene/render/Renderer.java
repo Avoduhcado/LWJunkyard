@@ -105,8 +105,8 @@ public class Renderer implements MemoryManaged {
 	private void setupDepthShader(Window window) {
 		depthShader = new DepthShader("depthVertex.glsl", "depthFragment.glsl", "position", "textureCoords", "normal", "weights", "jointIndices");
 		
-		float[] CASCADE_SPLITS = new float[] {Window.FAR_PLANE / 30.0f, Window.FAR_PLANE / 20.0f, Window.FAR_PLANE / 10.0f, Window.FAR_PLANE};
-		float zNear = Window.NEAR_PLANE;
+		float[] CASCADE_SPLITS = new float[] {window.getFarPlane() / 30.0f, window.getFarPlane() / 20.0f, window.getFarPlane() / 10.0f, window.getFarPlane()};
+		float zNear = window.getNearPlane();
 		for(int i = 0; i < CASCADE_SPLITS.length; i++) {
 			ShadowBox shadowCascade = new ShadowBox(zNear, CASCADE_SPLITS[i], window);
 			shadowBoxes.add(shadowCascade);

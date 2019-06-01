@@ -18,7 +18,7 @@ import com.avogine.junkyard.scene.render.shaders.util.UniformMatrix;
 import com.avogine.junkyard.scene.render.shaders.util.UniformSampler;
 import com.avogine.junkyard.scene.render.shaders.util.UniformVec3;
 import com.avogine.junkyard.scene.render.util.RenderConstants;
-import com.avogine.junkyard.window.Window;
+import com.avogine.junkyard.window.util.WindowConstants;
 
 // TODO Convert MAX_CONSTS into uniforms and load them at the start
 
@@ -99,11 +99,12 @@ public class SimpleLightingShader extends ShaderProgram {
 		super.start();
 		//shadowDistance.loadFloat(ShadowBox.SHADOW_DISTANCE);
 		//shadowDistance.loadFloat(Window.FAR_PLANE / 30.0f);
+		// TODO
 		shadowMapSize.loadInteger(ShadowMap.TEXTURE_SIZE);
-		cascadeFarPlanes[0].loadFloat(Window.FAR_PLANE / 30.0f);
-		cascadeFarPlanes[1].loadFloat(Window.FAR_PLANE / 20.0f);
-		cascadeFarPlanes[2].loadFloat(Window.FAR_PLANE / 10.0f);
-		cascadeFarPlanes[3].loadFloat(Window.FAR_PLANE);
+		cascadeFarPlanes[0].loadFloat(WindowConstants.DEFAULT_FAR_PLANE / 30.0f);
+		cascadeFarPlanes[1].loadFloat(WindowConstants.DEFAULT_FAR_PLANE / 20.0f);
+		cascadeFarPlanes[2].loadFloat(WindowConstants.DEFAULT_FAR_PLANE / 10.0f);
+		cascadeFarPlanes[3].loadFloat(WindowConstants.DEFAULT_FAR_PLANE);
 		super.stop();
 	}
 

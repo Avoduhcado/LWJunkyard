@@ -18,17 +18,16 @@ import com.avogine.junkyard.memory.MemoryManaged;
 import com.avogine.junkyard.scene.Stage;
 import com.avogine.junkyard.system.AvoEventQueue;
 import com.avogine.junkyard.util.MathUtils;
+import com.avogine.junkyard.window.util.WindowConstants;
 
 public class Window implements MemoryManaged {
 
-	// TODO Expose in options
-	public static final float FOV = 70;
-	public static final float NEAR_PLANE = 0.1f;
-	public static final float FAR_PLANE = 10000.0f;
-
-	// TODO Expose in options
-	private int refreshRate = 60;
-	private int unfocusedRefreshRate = 60;
+	private float fov;
+	private float nearPlane;
+	private float farPlane;
+	
+	private int refreshRate;
+	private int unfocusedRefreshRate;
 
 	private long ID;
 
@@ -48,6 +47,13 @@ public class Window implements MemoryManaged {
 		this.width = width;
 		this.height = height;
 		this.title = title;
+		
+		fov = WindowConstants.DEFAULT_FOV;
+		nearPlane = WindowConstants.DEFAULT_NEAR_PLANE;
+		farPlane = WindowConstants.DEFAULT_FAR_PLANE;
+		
+		refreshRate = WindowConstants.DEFAULT_REFRESH_RATE;
+		unfocusedRefreshRate = WindowConstants.DEFAULT_UNFOCUSED_REFRESH_RATE;
 	}
 
 	public void createWindow() {
@@ -232,11 +238,35 @@ public class Window implements MemoryManaged {
 
 	public Matrix4f updateProjectionMatrix() {
 		float aspectRatio = (float) (getWidth() / getHeight());
-		return projectionMatrix.setPerspective(FOV, aspectRatio, NEAR_PLANE, FAR_PLANE);
+		return projectionMatrix.setPerspective(fov, aspectRatio, nearPlane, farPlane);
 	}
 	
 	public Matrix4f getProjectionMatrix() {
 		return projectionMatrix;
+	}
+	
+	public float getFov() {
+		return fov;
+	}
+	
+	public void setFov(float fov) {
+		this.fov = fov;
+	}
+	
+	public float getNearPlane() {
+		return nearPlane;
+	}
+	
+	public void setNearPlane(float nearPlane) {
+		this.nearPlane = nearPlane;
+	}
+	
+	public float getFarPlane() {
+		return farPlane;
+	}
+	
+	public void setFarPlane(float farPlane) {
+		this.farPlane = farPlane;
 	}
 
 }

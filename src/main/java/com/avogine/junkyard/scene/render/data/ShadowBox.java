@@ -27,6 +27,8 @@ public class ShadowBox {
 	private static final Vector3f UP = new Vector3f(0, 1, 0);
 	private static final Vector3f FORWARD = new Vector3f(0, 0, -1);
 
+	// TODO Name these better, something relevant to the boxes range maybe?
+	/** The near and far planes of the current <code>ShadowBox</code> NOT the window */
 	private float zNear, zFar;
 	private float minX, maxX;
 	private float minY, maxY;
@@ -67,7 +69,7 @@ public class ShadowBox {
 		Matrix4f rotation = calculateCameraRotationMatrix(camera);
 		Vector3f forwardVector = rotation.transformDirection(FORWARD, new Vector3f());
 		
-		projViewMatrix.setPerspective(Window.FOV, getAspectRatio(), zNear, zFar);
+		projViewMatrix.setPerspective(window.getFov(), getAspectRatio(), zNear, zFar);
 		projViewMatrix.mul(camera.getViewMatrix());
 		//projViewMatrix.frustumCorner(corner, point)
 		
@@ -256,8 +258,8 @@ public class ShadowBox {
 	 * but means that distant objects wouldn't cast shadows.
 	 */
 	private void calculateWidthsAndHeights() {
-		farWidth = (float) (zFar * Math.tan(Math.toRadians(Window.FOV)));
-		nearWidth = (float) (zNear * Math.tan(Math.toRadians(Window.FOV)));
+		farWidth = (float) (zFar * Math.tan(Math.toRadians(window.getFov())));
+		nearWidth = (float) (zNear * Math.tan(Math.toRadians(window.getFov())));
 		farHeight = farWidth / getAspectRatio();
 		nearHeight = nearWidth / getAspectRatio();
 	}

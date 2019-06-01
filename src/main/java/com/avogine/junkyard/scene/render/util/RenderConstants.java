@@ -1,6 +1,6 @@
 package com.avogine.junkyard.scene.render.util;
 
-import com.avogine.junkyard.window.Window;
+import com.avogine.junkyard.window.util.WindowConstants;
 
 public class RenderConstants {
 
@@ -11,7 +11,8 @@ public class RenderConstants {
 
 	public static boolean TWEENING = true;
 
-	public static final float SIZE = Window.FAR_PLANE / 2f;
+	// TODO Source this from somewhere else probably, or drop it entirely
+	public static final float SIZE = WindowConstants.DEFAULT_FAR_PLANE / 2f;
 	public static final float[] CUBE_VERTICES = {
 			// RIGHT
 			-SIZE,  SIZE, -SIZE,

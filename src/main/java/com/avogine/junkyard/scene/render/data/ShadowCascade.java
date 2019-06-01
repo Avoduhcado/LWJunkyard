@@ -54,7 +54,7 @@ public class ShadowCascade {
 	public void update(Window window, Matrix4f viewMatrix, Vector3f lightDirection) {
 		// Build projection view matrix for this cascade
 		float aspectRatio = (float) window.getWidth() / (float) window.getHeight();
-		projViewMatrix.setPerspective(Window.FOV, aspectRatio, zNear, zFar);
+		projViewMatrix.setPerspective(window.getFov(), aspectRatio, zNear, zFar);
 		projViewMatrix.mul(viewMatrix);
 
 		// Calculate frustum corners in world space
