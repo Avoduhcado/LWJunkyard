@@ -15,6 +15,7 @@ import com.avogine.junkyard.io.Input;
 import com.avogine.junkyard.io.MusicBox;
 import com.avogine.junkyard.io.util.WindowManager;
 import com.avogine.junkyard.memory.MemoryManaged;
+import com.avogine.junkyard.scene.Scene;
 import com.avogine.junkyard.scene.Stage;
 import com.avogine.junkyard.system.AvoEventQueue;
 import com.avogine.junkyard.util.MathUtils;
@@ -41,7 +42,7 @@ public class Window implements MemoryManaged {
 
 	private Input input;
 	private MusicBox musicBox;
-	private Stage stage;
+	private Scene scene;
 
 	public Window(int width, int height, String title) {
 		this.width = width;
@@ -152,7 +153,7 @@ public class Window implements MemoryManaged {
 
 		input = new Input(this);
 		musicBox = new MusicBox(this);
-		stage = new Stage(this);
+		scene = new Stage(this);
 
 		GLFW.glfwShowWindow(ID);
 	}
@@ -164,14 +165,14 @@ public class Window implements MemoryManaged {
 
 		//GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
 
-		stage.render();
+		scene.render();
 
 		GLFW.glfwSwapBuffers(ID);
 	}
 
 	public void update() {
 		input.update();
-		stage.update();
+		scene.update();
 
 		GLFW.glfwPollEvents();
 	}
@@ -186,7 +187,8 @@ public class Window implements MemoryManaged {
 			return;
 		}
 		GLFW.glfwMakeContextCurrent(ID);
-		stage.cleanUp();
+		// TODO Change cleanup code to happen in some listener somewhere and register on instantiating the object
+		scene.cleanUp();
 		musicBox.cleanUp();
 		GLFW.glfwDestroyWindow(ID);
 		WindowManager.removeWindow(ID);
@@ -208,8 +210,8 @@ public class Window implements MemoryManaged {
 		return musicBox;
 	}
 
-	public Stage getStage() {
-		return stage;
+	public Scene getScene() {
+		return scene;
 	}
 
 	public int getRefreshRate() {

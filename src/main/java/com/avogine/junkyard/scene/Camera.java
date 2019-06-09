@@ -10,11 +10,14 @@ import com.avogine.junkyard.io.event.KeyInputEvent;
 import com.avogine.junkyard.io.event.KeyInputListener;
 import com.avogine.junkyard.io.event.MouseMotionInputEvent;
 import com.avogine.junkyard.io.event.MouseMotionInputListener;
+import com.avogine.junkyard.io.event.MouseScrollInputEvent;
+import com.avogine.junkyard.io.event.MouseScrollInputListener;
 import com.avogine.junkyard.scene.entity.body.KineticBody;
+import com.avogine.junkyard.scene.entity.event.SpeedChangeEvent;
 import com.avogine.junkyard.util.MathUtils;
 import com.avogine.junkyard.window.Window;
 
-public class Camera extends KineticBody implements MouseMotionInputListener, KeyInputListener {
+public class Camera extends KineticBody implements MouseMotionInputListener, KeyInputListener, MouseScrollInputListener {
 
 	private Matrix4f viewMatrix = new Matrix4f();
 	
@@ -100,6 +103,11 @@ public class Camera extends KineticBody implements MouseMotionInputListener, Key
 	
 	public Matrix4f getViewMatrixNoTranslation() {
 		return getViewMatrix().setTranslation(0, 0, 0);
+	}
+
+	@Override
+	public void mouseScrolled(MouseScrollInputEvent event) {
+		fireEvent(new SpeedChangeEvent(SpeedChangeEvent.ADD_SPEED, (float) event.getyOffset()));
 	}
 	
 }

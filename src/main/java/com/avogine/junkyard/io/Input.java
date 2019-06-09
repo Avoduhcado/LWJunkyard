@@ -14,9 +14,8 @@ import com.avogine.junkyard.io.event.KeyInputEvent;
 import com.avogine.junkyard.io.event.KeyInputListener;
 import com.avogine.junkyard.io.event.MouseMotionInputEvent;
 import com.avogine.junkyard.io.event.MouseMotionInputListener;
-import com.avogine.junkyard.scene.Cast;
-import com.avogine.junkyard.scene.entity.Body;
-import com.avogine.junkyard.scene.entity.event.SpeedChangeEvent;
+import com.avogine.junkyard.io.event.MouseScrollInputEvent;
+import com.avogine.junkyard.io.event.MouseScrollInputListener;
 import com.avogine.junkyard.window.Window;
 
 public class Input {
@@ -108,9 +107,7 @@ public class Input {
 		});
 		
 		GLFW.glfwSetScrollCallback(windowID, (w, xOffset, yOffset) -> {
-			// TODO Put this in a proper event firer
-			Cast cast = window.getStage().getCast();
-			cast.getComponent(Cast.CAMERA_ID, Body.class).ifPresent(body -> body.fireEvent(new SpeedChangeEvent(SpeedChangeEvent.ADD_SPEED, (float) yOffset)));
+			fireMouseScrollEvent(new MouseScrollInputEvent(xOffset, yOffset));
 		});
 	}
 	
@@ -139,8 +136,8 @@ public class Input {
 	
 	public void fireKeyInput(KeyInputEvent event) {
 		inputListeners.stream()
-			.filter(l -> l instanceof KeyInputListener)
-			.map(l -> (KeyInputListener) l)
+			.filter(KeyInputListener.class::isInstance)
+			.map(KeyInputListener.class::cast)
 			.forEach(l -> {
 				switch(event.getEventType()) {
 				case KeyInputEvent.KEY_PRESS:
@@ -158,8 +155,8 @@ public class Input {
 
 	public void fireMouseMotionEvent(MouseMotionInputEvent event) {
 		inputListeners.stream()
-			.filter(l -> l instanceof MouseMotionInputListener)
-			.map(l -> (MouseMotionInputListener) l)
+			.filter(MouseMotionInputListener.class::isInstance)
+			.map(MouseMotionInputListener.class::cast)
 			.forEach(l -> {
 				switch(event.getEventType()) {
 				case MouseMotionInputEvent.MOUSE_MOVED:
@@ -169,6 +166,15 @@ public class Input {
 					l.mouseDragged(event);
 					break;
 				}
+			});
+	}
+	
+	public void fireMouseScrollEvent(MouseScrollInputEvent event) {
+		inputListeners.stream()
+			.filter(MouseScrollInputListener.class::isInstance)
+			.map(MouseScrollInputListener.class::cast)
+			.forEach(l -> {
+				l.mouseScrolled(event);
 			});
 	}
 	

@@ -181,11 +181,14 @@ public class Stage extends Scene implements MemoryManaged {
 		//batangFont.printFont();
 	}
 	
+	@Override
 	public void render() {
 		renderer.render(window, camera, this);
 	}
 	
+	@Override
 	public void update() {
+		// TODO Define some of these operations elsewhere? A stage post processor??
 		lighting.doLighting();
 		followers.followTheLeader();
 		
