@@ -21,6 +21,7 @@ public class TerrainCollider extends Collider {
 		body.setGravityMode(false);
 		body.setKinematic();
 		
+		// TODO Change this into a heightfield probably
 		triMeshData = entityModel.getTriMeshData();
 		plane = OdeHelper.createTriMesh(space, triMeshData, null, null, null);
 		//plane = OdeHelper.createPlane(space, 0, 1, 0, 0);
