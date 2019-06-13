@@ -4,7 +4,7 @@ import org.lwjgl.opengl.GL20;
 
 public abstract class Uniform {
 	
-	private static final int NOT_FOUND = -1;
+	public static final int NOT_FOUND = -1;
 	
 	private String name;
 	private int location;
@@ -22,6 +22,11 @@ public abstract class Uniform {
 	
 	protected int getLocation(){
 		return location;
+	}
+	
+	@Override
+	public String toString() {
+		return name;
 	}
 
 }

@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import com.avogine.junkyard.scene.render.data.ShadowMap;
 import com.avogine.junkyard.scene.render.shaders.util.DirectionalLightStruct;
 import com.avogine.junkyard.scene.render.shaders.util.MaterialStruct;
 import com.avogine.junkyard.scene.render.shaders.util.PointLightStruct;
@@ -12,7 +11,6 @@ import com.avogine.junkyard.scene.render.shaders.util.ShaderProgram;
 import com.avogine.junkyard.scene.render.shaders.util.SpotLightStruct;
 import com.avogine.junkyard.scene.render.shaders.util.Uniform;
 import com.avogine.junkyard.scene.render.shaders.util.UniformFloat;
-import com.avogine.junkyard.scene.render.shaders.util.UniformInteger;
 import com.avogine.junkyard.scene.render.shaders.util.UniformMat4Array;
 import com.avogine.junkyard.scene.render.shaders.util.UniformMatrix;
 import com.avogine.junkyard.scene.render.shaders.util.UniformSampler;
@@ -48,7 +46,7 @@ public class SimpleLightingShader extends ShaderProgram {
 	public UniformMat4Array shadowSpaceMatrices = new UniformMat4Array("shadowSpaceMatrix", 4);
 	public UniformFloat[] cascadeFarPlanes = new UniformFloat[4];
 	//public UniformFloat shadowDistance = new UniformFloat("shadowDistance");
-	public UniformInteger shadowMapSize = new UniformInteger("shadowMapSize");
+	//public UniformInteger shadowMapSize = new UniformInteger("shadowMapSize");
 	
 	public SimpleLightingShader(String vertexFile, String fragmentFile, String...inVariables) {
 		super(vertexFile, fragmentFile, inVariables);
@@ -68,7 +66,7 @@ public class SimpleLightingShader extends ShaderProgram {
 			cascadeFarPlanes[i] = new UniformFloat("cascadeFarPlanes[" + i + "]");
 		}
 		
-		List<Uniform> uniforms = new ArrayList<>(Arrays.asList(colorTexture, model, view, projection, ambientLight, specularPower, jointsMatrix, shadowSpaceMatrices, shadowMapSize));
+		List<Uniform> uniforms = new ArrayList<>(Arrays.asList(colorTexture, model, view, projection, ambientLight, specularPower, jointsMatrix, shadowSpaceMatrices));
 		for(PointLightStruct pointLight : pointLights) {
 			uniforms.addAll(pointLight.getAllUniforms());
 		}
@@ -100,7 +98,7 @@ public class SimpleLightingShader extends ShaderProgram {
 		//shadowDistance.loadFloat(ShadowBox.SHADOW_DISTANCE);
 		//shadowDistance.loadFloat(Window.FAR_PLANE / 30.0f);
 		// TODO
-		shadowMapSize.loadInteger(ShadowMap.TEXTURE_SIZE);
+		//shadowMapSize.loadInteger(ShadowMap.TEXTURE_SIZE);
 		cascadeFarPlanes[0].loadFloat(WindowConstants.DEFAULT_FAR_PLANE / 30.0f);
 		cascadeFarPlanes[1].loadFloat(WindowConstants.DEFAULT_FAR_PLANE / 20.0f);
 		cascadeFarPlanes[2].loadFloat(WindowConstants.DEFAULT_FAR_PLANE / 10.0f);
