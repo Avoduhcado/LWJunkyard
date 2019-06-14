@@ -97,7 +97,7 @@ public class Renderer implements MemoryManaged {
 	}
 	
 	private void setupTextShader() {
-		fontShader = new SimpleFontShader("simpleFontVertex.glsl", "simpleFontFragment.glsl", "position", "textureCoords", "normal");
+		fontShader = new SimpleFontShader("simpleFontVertex.glsl", "simpleFontFragment.glsl", "position", "textureCoords");
 		
 		text = new Text("Sup!");
 	}
@@ -160,9 +160,11 @@ public class Renderer implements MemoryManaged {
 		renderSkybox(window, camera, stage);
 
 		transformation.updateOrthographic2DMatrix(0, window.getWidth(), window.getHeight(), 0);
-		
 		renderGui(window, camera);
-		//renderText(window, camera);
+		
+		// XXX It shouldn't be necessary to use a separate matrix, also we should be using ortho2D to set the matrix here anyway, idk why it doesn't work with the first one
+		transformation.updateOrthographicMatrix(0, window.getWidth(), window.getHeight(), 0, -1, 1);
+		renderText(window, camera);
 	}
 
 	public void renderStage(Window window, Camera camera, Stage stage) {		
@@ -305,7 +307,7 @@ public class Renderer implements MemoryManaged {
 		textMatrix.rotateXYZ(text.rotation);
 		textMatrix.translate((float) -text.getBoundingBox().getWidth() / 2, (float) -text.getBoundingBox().getHeight() / 2, 0);
 		textMatrix.scale(text.scale);
-		fontShader.projModelMatrix.loadMatrix(transformation.getOrthographic2DMatrix().mul(textMatrix));
+		fontShader.projModelMatrix.loadMatrix(transformation.getOrthographicMatrix().mul(textMatrix));
 
 		colorLerpTime = MathUtils.clamp(colorLerpTime + (float) (Theater.getDelta() * colorLerpSlope), 0f, colorLerpDuration);
 		if(colorLerpTime == colorLerpDuration) {

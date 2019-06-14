@@ -11,8 +11,9 @@ import org.joml.Vector3f;
 import com.avogine.junkyard.scene.render.data.Font;
 import com.avogine.junkyard.scene.render.data.Glyph;
 import com.avogine.junkyard.scene.render.data.Material;
-import com.avogine.junkyard.scene.render.data.Mesh;
+import com.avogine.junkyard.scene.render.data.RawMesh;
 import com.avogine.junkyard.scene.render.load.FontCache;
+import com.avogine.junkyard.scene.render.util.VAO;
 
 public class Text {
 
@@ -20,13 +21,13 @@ public class Text {
 
 	private static final int VERTICES_PER_QUAD = 4;
 
-	private Mesh mesh;
+	private RawMesh mesh;
 	private String text;
 	
 	private Rectangle2D boundingBox;
 
 	// XXX
-	public Vector3f position = new Vector3f(50, 50, 0);
+	public Vector3f position = new Vector3f(200, 200, 0);
 	public Vector3f rotation = new Vector3f();
 	public Vector3f scale = new Vector3f(1f);
 
@@ -35,13 +36,12 @@ public class Text {
 		mesh = buildMesh(FontCache.getFont("Avocado"));
 	}
 
-	private Mesh buildMesh(Font font) {
+	private RawMesh buildMesh(Font font) {
 		byte[] chars = text.getBytes(Charset.forName("ISO-8859-1"));
 		int numChars = chars.length;
 
 		List<Float> positions = new ArrayList<>();
 		List<Float> textCoords = new ArrayList<>();
-		float[] normals   = new float[0];
 		List<Integer> indices   = new ArrayList<>();
 
 		float textureWidth = font.getTexture().getWidth();
@@ -94,16 +94,19 @@ public class Text {
 			textWidth += currentGlyph.getxAdvance();
 		}
 
-		Mesh textMesh = new Mesh(ArrayUtils.toPrimitive(positions.stream().toArray(Float[]::new)), ArrayUtils.toPrimitive(textCoords.stream().toArray(Float[]::new)),
-				normals, indices.stream().mapToInt(Integer::intValue).toArray());
-		textMesh.setMaterial(new Material(font.getTexture()));
-
+		VAO rawVao = VAO.create();
+		rawVao.bind(0, 1);
+		rawVao.createAttribute(0, ArrayUtils.toPrimitive(positions.stream().toArray(Float[]::new)), 3);
+		rawVao.createAttribute(1, ArrayUtils.toPrimitive(textCoords.stream().toArray(Float[]::new)), 2);
+		rawVao.createIndexBuffer(indices.stream().mapToInt(Integer::intValue).toArray());
+		RawMesh textMesh = new RawMesh(rawVao, 2, new Material(font.getTexture()));
+		
 		setBoundingBox(new Rectangle2D.Float(positions.get(0), positions.get(1), positions.get(positions.size() - 6), positions.get(positions.size() - 5)));
 		
 		return textMesh;
 	}
 
-	public Mesh getMesh() {
+	public RawMesh getMesh() {
 		return mesh;
 	}
 

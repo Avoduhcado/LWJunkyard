@@ -2,11 +2,10 @@
 
 in vec3 position;
 in vec2 textureCoords;
-in vec3 normal;
-
-out vec2 outTexCoord;
 
 uniform mat4 projModelMatrix;
+
+out vec2 outTexCoord;
 
 void main()
 {
