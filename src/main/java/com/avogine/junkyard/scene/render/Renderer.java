@@ -161,9 +161,6 @@ public class Renderer implements MemoryManaged {
 
 		transformation.updateOrthographic2DMatrix(0, window.getWidth(), window.getHeight(), 0);
 		renderGui(window, camera);
-		
-		// XXX It shouldn't be necessary to use a separate matrix, also we should be using ortho2D to set the matrix here anyway, idk why it doesn't work with the first one
-		transformation.updateOrthographicMatrix(0, window.getWidth(), window.getHeight(), 0, -1, 1);
 		renderText(window, camera);
 	}
 
@@ -283,9 +280,9 @@ public class Renderer implements MemoryManaged {
 		Matrix4f guiMatrix = new Matrix4f();
 		guiMatrix.translate(new Vector3f(600f, 400f, 0));
 		guiMatrix.scale(new Vector3f(300f));
-		guiShader.projModelMatrix.loadMatrix(transformation.getOrthographic2DMatrix().mul(guiMatrix));
+		guiShader.projModelMatrix.loadMatrix(transformation.getOrthographic2DMatrix().mul(guiMatrix, new Matrix4f()));
 		
-		//guiMesh.render();
+		guiMesh.render();
 		
 		guiShader.stop();
 	}
@@ -307,7 +304,7 @@ public class Renderer implements MemoryManaged {
 		textMatrix.rotateXYZ(text.rotation);
 		textMatrix.translate((float) -text.getBoundingBox().getWidth() / 2, (float) -text.getBoundingBox().getHeight() / 2, 0);
 		textMatrix.scale(text.scale);
-		fontShader.projModelMatrix.loadMatrix(transformation.getOrthographicMatrix().mul(textMatrix));
+		fontShader.projModelMatrix.loadMatrix(transformation.getOrthographic2DMatrix().mul(textMatrix, new Matrix4f()));
 
 		colorLerpTime = MathUtils.clamp(colorLerpTime + (float) (Theater.getDelta() * colorLerpSlope), 0f, colorLerpDuration);
 		if(colorLerpTime == colorLerpDuration) {
