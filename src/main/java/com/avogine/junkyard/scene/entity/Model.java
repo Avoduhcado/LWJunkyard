@@ -19,6 +19,9 @@ public abstract class Model extends EntityComponent {
 	
 	public abstract void loadMeshes(ModelInfo modelInfo);
 	
+	/**
+	 * XXX I think this method is garbage and can probably just be deleted now, it's doing nothing.
+	 */
 	public abstract void prepare();
 	
 	public Mesh[] getMeshes() {

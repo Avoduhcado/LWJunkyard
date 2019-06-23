@@ -1,20 +1,22 @@
 package com.avogine.junkyard.scene.render.data;
 
-import java.util.Arrays;
-
 import org.joml.Matrix4f;
 
+import com.avogine.junkyard.scene.render.util.RenderConstants;
+
 public class AnimatedFrame {
-
-    private static final Matrix4f IDENTITY_MATRIX = new Matrix4f();
-
-    public static final int MAX_JOINTS = 150;
 
     private final Matrix4f[] jointMatrices;
 
     public AnimatedFrame() {
-        jointMatrices = new Matrix4f[MAX_JOINTS];
-        Arrays.fill(jointMatrices, IDENTITY_MATRIX);
+        jointMatrices = new Matrix4f[RenderConstants.MAX_JOINTS];
+        setMatrices();
+    }
+    
+    public void setMatrices() {
+    	for(int i = 0; i < jointMatrices.length; i++) {
+    		jointMatrices[i] = new Matrix4f();
+    	}
     }
 
     public Matrix4f[] getJointMatrices() {

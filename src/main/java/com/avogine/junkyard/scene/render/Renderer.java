@@ -1,7 +1,11 @@
 package com.avogine.junkyard.scene.render;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
@@ -54,6 +58,8 @@ public class Renderer implements MemoryManaged {
 	private SimpleOrthoShader guiShader;
 	private DepthShader depthShader;
 	
+	private Map<Mesh, Collection<ComponentMap>> meshMap = new HashMap<>();
+	
 	private List<ShadowBox> shadowBoxes = new ArrayList<>();
 	private ShadowMapCascade shadowMapCascade;
 	private RawMesh guiMesh;
@@ -105,14 +111,13 @@ public class Renderer implements MemoryManaged {
 	private void setupDepthShader(Window window) {
 		depthShader = new DepthShader("depthVertex.glsl", "depthFragment.glsl", "position", "textureCoords", "normal", "weights", "jointIndices");
 		
-		float[] CASCADE_SPLITS = new float[] {window.getFarPlane() / 30.0f, window.getFarPlane() / 20.0f, window.getFarPlane() / 10.0f, window.getFarPlane()};
 		float zNear = window.getNearPlane();
-		for(int i = 0; i < CASCADE_SPLITS.length; i++) {
-			ShadowBox shadowCascade = new ShadowBox(zNear, CASCADE_SPLITS[i], window);
+		for(int i = 0; i < RenderConstants.SHADOW_CASCADES.length; i++) {
+			ShadowBox shadowCascade = new ShadowBox(zNear, RenderConstants.SHADOW_CASCADES[i], window);
 			shadowBoxes.add(shadowCascade);
-			zNear = CASCADE_SPLITS[i];
+			zNear = RenderConstants.SHADOW_CASCADES[i];
 		}
-		shadowMapCascade = new ShadowMapCascade(window, CASCADE_SPLITS.length);
+		shadowMapCascade = new ShadowMapCascade(window, RenderConstants.SHADOW_CASCADES.length);
 	}
 	
 	private void setupGuiShader() {
@@ -136,7 +141,7 @@ public class Renderer implements MemoryManaged {
 				0, 1, 2,
 				2, 3, 0
 		});
-		guiMesh = new RawMesh(rawVao, 2, shadowMapCascade.getTextureIds()[3]);
+		guiMesh = new RawMesh(rawVao, 2, shadowMapCascade.getTextureIds()[0]);
 	}
 	
 	private void setupLineShader() {
@@ -170,8 +175,7 @@ public class Renderer implements MemoryManaged {
 		entityShader.view.loadMatrix(camera.getViewMatrix());
 		entityShader.projection.loadMatrix(window.getProjectionMatrix());
 		
-		// TODO Cascades don't work because this is what we send up, if we only do it once they're right
-		// This needs to be a uniform array
+		// TODO This needs to be a uniform array
 		Matrix4f[] projectionViewArray = new Matrix4f[shadowBoxes.size()];
 		for(int i = 0; i < projectionViewArray.length; i++) {
 			projectionViewArray[i] = new Matrix4f();
@@ -184,25 +188,28 @@ public class Renderer implements MemoryManaged {
 		
 		renderLights(camera, stage.getStageLighting(), stage.getCast());
 		
-		// TODO Should definitely look into batching the rendering so that it renders a model for each model with the unique transform for them and then renders the next unique model
+		meshMap.clear();
 		for(ComponentMap entity : stage.getCast().getEntitiesWithComponents(Model.class, Body.class)) {
-			Body body = entity.getAs(Body.class);
-			Model model = entity.getAs(Model.class);
-			
-			entityShader.model.loadMatrix(transformation.buildModelMatrix(body));
-			
-			model.prepare();
-			
-			if(model instanceof Animatable) {
-				AnimatedFrame frame = ((Animatable) model).getCurrentFrame();
-				entityShader.jointsMatrix.loadMatrixArray(frame.getJointMatrices());
+			for(Mesh mesh : entity.getAs(Model.class).getMeshes()) {
+				meshMap.computeIfAbsent(mesh, k -> new HashSet<>()).add(entity);
 			}
-
-			for(Mesh mesh : model.getMeshes()) {
-				entityShader.material.loadMaterial(mesh.getMaterial());
+		}
+		
+		for(Mesh mesh : meshMap.keySet()) {
+			entityShader.material.loadMaterial(mesh.getMaterial());
+			
+			mesh.renderList(meshMap.get(mesh), (entity) -> {
+				Body body = entity.getAs(Body.class);
+				Model model = entity.getAs(Model.class);
+				entityShader.model.loadMatrix(transformation.buildModelMatrix(body));
 				
-				mesh.render();
-			}
+				model.prepare();
+				
+				if(model instanceof Animatable) {
+					AnimatedFrame frame = ((Animatable) model).getCurrentFrame();
+					entityShader.jointsMatrix.loadMatrixArray(frame.getJointMatrices());
+				}
+			});
 		}
 
 		entityShader.stop();
@@ -282,7 +289,7 @@ public class Renderer implements MemoryManaged {
 		guiMatrix.scale(new Vector3f(300f));
 		guiShader.projModelMatrix.loadMatrix(transformation.getOrthographic2DMatrix().mul(guiMatrix, new Matrix4f()));
 		
-		guiMesh.render();
+		//guiMesh.render();
 		
 		guiShader.stop();
 	}
@@ -363,26 +370,31 @@ public class Renderer implements MemoryManaged {
 			projectionViewMatrix.set(cascade.getOrthoProjMatrix());
 			projectionViewMatrix.mul(cascade.getLightViewMatrix());
 			
-			// TODO Should definitely look into batching the rendering so that it renders a model for each model with the unique transform for them and then renders the next unique model
+			meshMap.clear();
 			for(ComponentMap entity : stage.getCast().getEntitiesWithComponents(Model.class, Body.class)) {
-				Body body = entity.getAs(Body.class);
-				Model model = entity.getAs(Model.class);
-	
-				depthShader.modelViewProjectionMatrix.loadMatrix(projectionViewMatrix.mul(transformation.buildModelMatrix(body), new Matrix4f()));
+				for(Mesh mesh : entity.getAs(Model.class).getMeshes()) {
+					meshMap.computeIfAbsent(mesh, k -> new HashSet<>()).add(entity);
+				}
+			}
+			
+			for(Mesh mesh : meshMap.keySet()) {
+				if(mesh.getMaterial().isTextured()) {
+					// TODO Check for transparency and disable backface culling for this to be working fully
+					mesh.getMaterial().getTexture().bindToUnit(0);
+				}
 				
-				if(model instanceof Animatable) {
-					AnimatedFrame frame = ((Animatable) model).getCurrentFrame();
-					depthShader.jointsMatrixArray.loadMatrixArray(frame.getJointMatrices());
-				}
-	
-				for(Mesh mesh : model.getMeshes()) {
-					if(mesh.getMaterial().isTextured()) {
-						// TODO Check for transparency and disable backface culling for this to be working fully
-						mesh.getMaterial().getTexture().bindToUnit(0);
-					}
+				mesh.renderList(meshMap.get(mesh), (entity) -> {
+					Body body = entity.getAs(Body.class);
+					Model model = entity.getAs(Model.class);
+					depthShader.modelViewProjectionMatrix.loadMatrix(projectionViewMatrix.mul(transformation.buildModelMatrix(body), new Matrix4f()));
 					
-					mesh.render();
-				}
+					model.prepare();
+					
+					if(model instanceof Animatable) {
+						AnimatedFrame frame = ((Animatable) model).getCurrentFrame();
+						depthShader.jointsMatrixArray.loadMatrixArray(frame.getJointMatrices());
+					}
+				});
 			}
 		}
 		

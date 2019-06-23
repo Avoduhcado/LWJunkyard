@@ -1,5 +1,7 @@
 package com.avogine.junkyard;
 
+import java.lang.invoke.MethodHandles;
+
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.slf4j.Logger;
@@ -14,7 +16,7 @@ import com.avogine.junkyard.window.Window;
 
 public class Theater implements MemoryManaged {
 
-	private static final Logger logger = LoggerFactory.getLogger(Theater.class);
+	private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 	
 	private static final long ONE_MILLION = 1000000L;
 	private static final double ONE_THOUSAND = 1000.0;
@@ -31,7 +33,7 @@ public class Theater implements MemoryManaged {
 	private long milliSleep;
 	private int nanoSleep;
 			
-	public Theater() {		
+	public Theater() {
 		GLFWErrorCallback.createPrint(System.err).set();
 		
 		if(!GLFW.glfwInit()) {

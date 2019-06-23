@@ -4,8 +4,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 
-import org.joml.Matrix4f;
-
 import com.avogine.junkyard.Theater;
 import com.avogine.junkyard.scene.entity.Model;
 import com.avogine.junkyard.scene.entity.event.EntityEvent;
@@ -23,6 +21,7 @@ public class AnimatedModel extends Model implements Animatable {
 	
 	protected Map<String, AnimationData> animations;
 	protected String currentAnimation;
+	protected AnimatedFrame tweenedFrame;
 
 	protected int currentFrame;
 	protected double animationStep;
@@ -53,13 +52,10 @@ public class AnimatedModel extends Model implements Animatable {
 
 	@Override
 	public void prepare() {
-		if(getCurrentAnimation() != null) {
-			// TODO This should happen in some kind of animation specific code rather than a generic "prepare"
-			animate();
-		}
 	}
 
-	protected void animate() {
+	@Override
+	public void animate() {
 		// TODO Put this in a time listener
 		animationStep += Theater.getDeltaChange(ANIMATION_FRAME_RATE);
 		if(animationStep >= animations.get(currentAnimation).getFrameDuration()) {
@@ -108,18 +104,18 @@ public class AnimatedModel extends Model implements Animatable {
 	}
 
 	protected AnimatedFrame getCurrentFrameTweened() {
+		if(tweenedFrame == null) {
+			tweenedFrame = new AnimatedFrame();
+		}
 		AnimatedFrame current = animations.get(currentAnimation).getFrames().get(currentFrame);
-		//return current;
 		AnimatedFrame next = animations.get(currentAnimation).getFrames().get((currentFrame + 1 >= animations.get(currentAnimation).getFrames().size()) ? 0 : currentFrame + 1);
 
-		AnimatedFrame tween = new AnimatedFrame();
 		float mixFactor = (float) (animationStep / animations.get(currentAnimation).getFrameDuration());
-		for(int i = 0; i < AnimatedFrame.MAX_JOINTS; i++) {
-			Matrix4f tweenMatrix = current.getJointMatrices()[i].lerp(next.getJointMatrices()[i], mixFactor, new Matrix4f());
-			tween.setMatrix(i, tweenMatrix);
+		for(int i = 0; i < RenderConstants.MAX_JOINTS; i++) {
+			current.getJointMatrices()[i].lerp(next.getJointMatrices()[i], mixFactor, tweenedFrame.getJointMatrices()[i]);
 		}
 
-		return tween;
+		return tweenedFrame;
 	}
 
 }

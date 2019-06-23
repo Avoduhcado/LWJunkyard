@@ -24,6 +24,7 @@ import com.avogine.junkyard.scene.entity.light.DirectionalLight;
 import com.avogine.junkyard.scene.entity.light.PointLight;
 import com.avogine.junkyard.scene.entity.light.PointLight.Attenuation;
 import com.avogine.junkyard.scene.entity.light.SpotLight;
+import com.avogine.junkyard.scene.entity.render.Animatable;
 import com.avogine.junkyard.scene.entity.render.AnimatedModel;
 import com.avogine.junkyard.scene.entity.render.StaticModel;
 import com.avogine.junkyard.scene.entity.render.TerrainModel;
@@ -47,7 +48,6 @@ public class Stage extends Scene implements MemoryManaged {
 	private DWorld world;
 	private DSpace space;
 	private DJointGroup contactGroup;
-	//private DGeom ground;
 		
 	private BackgroundMusic bgm;
 		
@@ -229,6 +229,12 @@ public class Stage extends Scene implements MemoryManaged {
 			
 			body.setPosition(collider.getBodyPosition());
 		}
+		
+		cast.getEntitiesWithComponent(Model.class).stream()
+			.map(m -> m.getAs(Model.class))
+			.filter(Animatable.class::isInstance)
+			.map(Animatable.class::cast)
+			.forEach(Animatable::animate);
 	}
 	
 	@Override

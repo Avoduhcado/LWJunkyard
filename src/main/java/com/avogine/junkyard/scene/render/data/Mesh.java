@@ -1,26 +1,26 @@
 package com.avogine.junkyard.scene.render.data;
 
 import java.util.Arrays;
-import java.util.List;
+import java.util.Collection;
 import java.util.function.Consumer;
 
 import org.lwjgl.opengl.GL11;
 
 import com.avogine.junkyard.memory.MemoryManaged;
+import com.avogine.junkyard.scene.ComponentMap;
 import com.avogine.junkyard.scene.entity.Renderable;
+import com.avogine.junkyard.scene.render.util.RenderConstants;
 import com.avogine.junkyard.scene.render.util.VAO;
 
 public class Mesh implements Renderable, MemoryManaged {
 
-	public static final int MAX_WEIGHTS = 4;
-	
 	protected VAO vao;
 	protected Material material;
 	
 	protected float boundingRadius;
 
 	public Mesh(float[] positions, float[] textureCoords, float[] normals, int[] indices) {
-		this(positions, textureCoords, normals, createEmptyFloatArray(MAX_WEIGHTS * positions.length / 3, 0), createEmptyIntArray(MAX_WEIGHTS * positions.length / 3, 0), indices);
+		this(positions, textureCoords, normals, createEmptyFloatArray(RenderConstants.MAX_WEIGHTS * positions.length / 3, 0), createEmptyIntArray(RenderConstants.MAX_WEIGHTS * positions.length / 3, 0), indices);
 	}
 
 	/**
@@ -66,13 +66,13 @@ public class Mesh implements Renderable, MemoryManaged {
 		endRender();
 	}
 	
-	public void renderList(List<ModelData> modelList, Consumer<ModelData> consumer) {
+	public void renderList(Collection<ComponentMap> entityList, Consumer<ComponentMap> consumer) {
 		initRender();
 		
-		for(ModelData model : modelList) {
-			// Set up data required by Model
-			consumer.accept(model);
-			// Render this game item
+		for(ComponentMap entity : entityList) {
+			// Set up data required by entity
+			consumer.accept(entity);
+			// Render this entity
 			GL11.glDrawElements(GL11.GL_TRIANGLES, getVao().getIndexCount(), GL11.GL_UNSIGNED_INT, 0);
 		}
 		

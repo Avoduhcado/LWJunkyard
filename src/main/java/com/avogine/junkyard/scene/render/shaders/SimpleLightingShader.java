@@ -16,9 +16,9 @@ import com.avogine.junkyard.scene.render.shaders.util.UniformMatrix;
 import com.avogine.junkyard.scene.render.shaders.util.UniformSampler;
 import com.avogine.junkyard.scene.render.shaders.util.UniformVec3;
 import com.avogine.junkyard.scene.render.util.RenderConstants;
-import com.avogine.junkyard.window.util.WindowConstants;
 
 // TODO Convert MAX_CONSTS into uniforms and load them at the start
+// Although this might not be possible since they're being used to instantiate glsl arrays, and using non constants to do that is a no no
 
 public class SimpleLightingShader extends ShaderProgram {
 	
@@ -40,13 +40,9 @@ public class SimpleLightingShader extends ShaderProgram {
 	// Model material
 	public MaterialStruct material = new MaterialStruct("material");
 	// Shadows
-	//public UniformSampler shadowMap = new UniformSampler("shadowMap");
-	public UniformSampler[] shadowMaps = new UniformSampler[4];
-	//public UniformMatrix toShadowMapSpace = new UniformMatrix("toShadowMapSpace");
-	public UniformMat4Array shadowSpaceMatrices = new UniformMat4Array("shadowSpaceMatrix", 4);
-	public UniformFloat[] cascadeFarPlanes = new UniformFloat[4];
-	//public UniformFloat shadowDistance = new UniformFloat("shadowDistance");
-	//public UniformInteger shadowMapSize = new UniformInteger("shadowMapSize");
+	public UniformSampler[] shadowMaps = new UniformSampler[RenderConstants.MAX_SHADOW_CASCADES];
+	public UniformMat4Array shadowSpaceMatrices = new UniformMat4Array("shadowSpaceMatrix", RenderConstants.MAX_SHADOW_CASCADES);
+	public UniformFloat[] cascadeFarPlanes = new UniformFloat[RenderConstants.MAX_SHADOW_CASCADES];
 	
 	public SimpleLightingShader(String vertexFile, String fragmentFile, String...inVariables) {
 		super(vertexFile, fragmentFile, inVariables);
@@ -86,7 +82,6 @@ public class SimpleLightingShader extends ShaderProgram {
 	protected void connectTextureUnits() {
 		super.start();
 		colorTexture.loadTexUnit(0);
-		//shadowMap.loadTexUnit(1);
 		for(int i = 0; i < shadowMaps.length; i++) {
 			shadowMaps[i].loadTexUnit(1 + i);
 		}
@@ -95,14 +90,11 @@ public class SimpleLightingShader extends ShaderProgram {
 	
 	protected void loadShadowConstants() {
 		super.start();
-		//shadowDistance.loadFloat(ShadowBox.SHADOW_DISTANCE);
-		//shadowDistance.loadFloat(Window.FAR_PLANE / 30.0f);
-		// TODO
+		// TODO Reimplement PCF shadows
 		//shadowMapSize.loadInteger(ShadowMap.TEXTURE_SIZE);
-		cascadeFarPlanes[0].loadFloat(WindowConstants.DEFAULT_FAR_PLANE / 30.0f);
-		cascadeFarPlanes[1].loadFloat(WindowConstants.DEFAULT_FAR_PLANE / 20.0f);
-		cascadeFarPlanes[2].loadFloat(WindowConstants.DEFAULT_FAR_PLANE / 10.0f);
-		cascadeFarPlanes[3].loadFloat(WindowConstants.DEFAULT_FAR_PLANE);
+		for(int i = 0; i < cascadeFarPlanes.length; i++) {
+			cascadeFarPlanes[i].loadFloat(RenderConstants.SHADOW_CASCADES[i]);
+		}
 		super.stop();
 	}
 

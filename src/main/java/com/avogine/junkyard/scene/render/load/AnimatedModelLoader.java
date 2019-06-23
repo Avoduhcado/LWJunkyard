@@ -32,6 +32,7 @@ import com.avogine.junkyard.scene.render.data.Mesh;
 import com.avogine.junkyard.scene.render.data.ModelData;
 import com.avogine.junkyard.scene.render.data.Node;
 import com.avogine.junkyard.scene.render.data.VertexWeight;
+import com.avogine.junkyard.scene.render.util.RenderConstants;
 import com.avogine.junkyard.util.ResourceConstants;
 
 public class AnimatedModelLoader extends StaticModelLoader {
@@ -186,7 +187,7 @@ public class AnimatedModelLoader extends StaticModelLoader {
 		for (int i = 0; i < numVertices; i++) {
 			List<VertexWeight> vertexWeightList = weightSet.get(i);
 			int size = vertexWeightList != null ? vertexWeightList.size() : 0;
-			for (int j = 0; j < Mesh.MAX_WEIGHTS; j++) {
+			for (int j = 0; j < RenderConstants.MAX_WEIGHTS; j++) {
 				if (j < size) {
 					VertexWeight vw = vertexWeightList.get(j);
 					weights.add(vw.getWeight());
