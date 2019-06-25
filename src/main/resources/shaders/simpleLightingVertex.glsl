@@ -3,7 +3,7 @@
 const int MAX_WEIGHTS = 4;
 const int MAX_JOINTS = 150;
 
-const int MAX_CASCADES = 4;
+const int MAX_CASCADES = 6;
 
 const float transitionDistance = 10.0;
 
@@ -17,14 +17,11 @@ uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
 uniform mat4 jointsMatrix[MAX_JOINTS];
-//uniform mat4 toShadowMapSpace;
-//uniform float shadowDistance;
 uniform mat4 shadowSpaceMatrix[MAX_CASCADES];
 
 out vec2 fragTextureCoords;
 out vec3 fragVertexNormal;
 out vec3 fragVertexPosition;
-//out vec4 shadowCoords;
 out vec4 fragLightViewVertexPos[MAX_CASCADES];
 
 void main() {
@@ -51,19 +48,12 @@ void main() {
 	}
 
 	vec4 worldPosition = model * totalLocalPos;
-//	shadowCoords = toShadowMapSpace * worldPosition;
 	vec4 positionRelativeToCamera = view * worldPosition;
 	gl_Position = projection * positionRelativeToCamera;
 
 	fragTextureCoords = textureCoords;
 	fragVertexNormal = normalize((model * view) * totalNormal).xyz;
     fragVertexPosition = positionRelativeToCamera.xyz;
-    
-//    float distance = length(positionRelativeToCamera.xyz);
-    
-//    distance = distance - (shadowDistance - transitionDistance);
-//    distance = distance / transitionDistance;
-//    shadowCoords.w = clamp(1.0 - distance, 0.0, 1.0);
     
     for (int i = 0 ; i < MAX_CASCADES ; i++) {
         fragLightViewVertexPos[i] = shadowSpaceMatrix[i] * worldPosition;

@@ -15,12 +15,14 @@ public class RenderConstants {
 	public static final int MAX_SPOT_LIGHTS = 5;
 	
 	/** The maximum number of shadow cascades to draw */
-	public static int MAX_SHADOW_CASCADES = 4;
+	public static int MAX_SHADOW_CASCADES = 6;
 	
 	public static float[] SHADOW_CASCADES = new float[] {
-			WindowConstants.DEFAULT_FAR_PLANE / 30.0f,
-			WindowConstants.DEFAULT_FAR_PLANE / 20.0f,
-			WindowConstants.DEFAULT_FAR_PLANE / 10.0f,
+			WindowConstants.DEFAULT_FAR_PLANE * 0.01f,
+			WindowConstants.DEFAULT_FAR_PLANE * 0.02f,
+			WindowConstants.DEFAULT_FAR_PLANE * 0.075f,
+			WindowConstants.DEFAULT_FAR_PLANE * 0.3f,
+			WindowConstants.DEFAULT_FAR_PLANE * 0.7f,
 			WindowConstants.DEFAULT_FAR_PLANE	
 	};
 

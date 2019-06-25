@@ -289,7 +289,7 @@ public class Renderer implements MemoryManaged {
 		guiMatrix.scale(new Vector3f(300f));
 		guiShader.projModelMatrix.loadMatrix(transformation.getOrthographic2DMatrix().mul(guiMatrix, new Matrix4f()));
 		
-		//guiMesh.render();
+		guiMesh.render();
 		
 		guiShader.stop();
 	}

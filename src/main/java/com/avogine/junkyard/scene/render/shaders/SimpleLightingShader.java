@@ -90,8 +90,6 @@ public class SimpleLightingShader extends ShaderProgram {
 	
 	protected void loadShadowConstants() {
 		super.start();
-		// TODO Reimplement PCF shadows
-		//shadowMapSize.loadInteger(ShadowMap.TEXTURE_SIZE);
 		for(int i = 0; i < cascadeFarPlanes.length; i++) {
 			cascadeFarPlanes[i].loadFloat(RenderConstants.SHADOW_CASCADES[i]);
 		}

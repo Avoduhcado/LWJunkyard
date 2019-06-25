@@ -89,7 +89,7 @@ public class Stage extends Scene implements MemoryManaged {
 		
 		for(int i = 0; i < 25; i++) {
 			entity = cast.newEntity();
-			entityBody = new StaticBody(entity, new Vector3f((float) ((Math.random() * 500) - 250), 150, (float) ((Math.random() * 500) - 250)));
+			entityBody = new StaticBody(entity, new Vector3f((float) ((Math.random() * 500) - 250), 50, (float) ((Math.random() * 500) - 250)));
 			cast.addComponent(entity, new AnimatedModel(entity, new ModelInfo("robutt11.fbx")));
 			cast.addComponent(entity, entityBody);
 			cast.addComponent(entity, new KineticCollider(entity, world, space, entityBody));
@@ -101,7 +101,7 @@ public class Stage extends Scene implements MemoryManaged {
 		Model treeModel = new StaticModel(entity, new ModelInfo("bigTree.obj"));
 		cast.addComponent(entity, treeModel);
 		Body treeBody = new StaticBody(entity, new Vector3f(-250, -5, -200));
-		treeBody.setScale(new Vector3f(10f));
+		treeBody.setScale(new Vector3f(5f));
 		cast.addComponent(entity, treeBody);
 		
 		/* TERRAIN */

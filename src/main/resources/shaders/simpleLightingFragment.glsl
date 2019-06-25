@@ -1,11 +1,10 @@
 #version 330
 
-const int MAX_CASCADES = 4;
+const int MAX_CASCADES = 6;
 
 in vec2 fragTextureCoords;
 in vec3 fragVertexNormal;
 in vec3 fragVertexPosition;
-//in vec4 shadowCoords;
 in vec4 fragLightViewVertexPos[MAX_CASCADES];
 
 out vec4 outColor;
@@ -14,7 +13,7 @@ const int MAX_POINT_LIGHTS = 5;
 const int MAX_SPOT_LIGHTS = 5;
 
 // Percentage closer filtering for shadow smoothing
-const int pcfCount = 2;
+const int pcfCount = 3;
 const float totalTexels = (pcfCount * 2.0 + 1.0) * (pcfCount * 2.0 + 1.0); 
 
 struct Attenuation {
@@ -58,10 +57,8 @@ uniform Material material;
 uniform PointLight pointLights[MAX_POINT_LIGHTS];
 uniform SpotLight spotLights[MAX_SPOT_LIGHTS];
 uniform DirectionalLight directionalLight;
-//uniform sampler2D shadowMap;
 uniform sampler2D shadowMaps[MAX_CASCADES];
 uniform float cascadeFarPlanes[MAX_CASCADES];
-uniform int shadowMapSize;
 
 vec4 ambientC;
 vec4 diffuseC;
@@ -155,13 +152,13 @@ float calcShadow(vec4 position, int idx) {
     float shadowFactor = 0.0;
     vec2 inc = 1.0 / textureSize(shadowMaps[idx], 0);
 
-    for(int row = -1; row <= 1; ++row) {
-        for(int col = -1; col <= 1; ++col) {
+    for(int row = -pcfCount; row <= pcfCount; ++row) {
+        for(int col = -pcfCount; col <= pcfCount; ++col) {
             float textDepth = texture(shadowMaps[idx], projCoords.xy + vec2(row, col) * inc).r;
             shadowFactor += projCoords.z - bias > textDepth ? 1.0 : 0.0;        
         }    
     }
-    shadowFactor /= 9.0;
+    shadowFactor /= totalTexels;
 
     if(projCoords.z > 1.0) {
         shadowFactor = 1.0;
