@@ -7,12 +7,10 @@ import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.GL32;
 
 import com.avogine.junkyard.memory.MemoryManaged;
-import com.avogine.junkyard.window.Window;
 
 public class FBO implements MemoryManaged {
 
 	private int width, height;
-	private Window window;
 	
 	private int fboId;
 	
@@ -21,16 +19,15 @@ public class FBO implements MemoryManaged {
 	
 	private int depthBuffer;
 	
-	private FBO(int id, int width, int height, Window window) {
+	private FBO(int id, int width, int height) {
 		this.fboId = id;
 		this.width = width;
 		this.height = height;
-		this.window = window;
 	}
 	
-	public static FBO create(int width, int height, Window window) {
+	public static FBO create(int width, int height) {
 		int id = GL30.glGenFramebuffers();
-		return new FBO(id, width, height, window);
+		return new FBO(id, width, height);
 	}
 	
 	// TODO Throw IllegalStateException?
@@ -50,7 +47,6 @@ public class FBO implements MemoryManaged {
 	
 	public void unbindFramebuffer() {
 		GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, 0);
-		GL11.glViewport(0, 0, window.getWidth(), window.getHeight());
 	}
 	
 	public void unbindFramebufferAndSetViewport(int width, int height) {

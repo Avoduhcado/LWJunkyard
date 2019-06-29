@@ -4,7 +4,6 @@ import org.lwjgl.opengl.GL11;
 
 import com.avogine.junkyard.memory.MemoryManaged;
 import com.avogine.junkyard.scene.render.util.FBO;
-import com.avogine.junkyard.window.Window;
 
 public class ShadowMap implements MemoryManaged {
 
@@ -12,8 +11,8 @@ public class ShadowMap implements MemoryManaged {
 	
 	private FBO fbo;
 	
-	public ShadowMap(Window window) {
-		setFbo(FBO.create(TEXTURE_SIZE, TEXTURE_SIZE, window));
+	public ShadowMap() {
+		setFbo(FBO.create(TEXTURE_SIZE, TEXTURE_SIZE));
 		
 		getFbo().bindFramebuffer();
 		

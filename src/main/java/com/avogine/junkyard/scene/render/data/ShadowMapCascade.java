@@ -9,7 +9,6 @@ import org.lwjgl.opengl.GL32;
 
 import com.avogine.junkyard.memory.MemoryManaged;
 import com.avogine.junkyard.scene.render.util.FBO;
-import com.avogine.junkyard.window.Window;
 
 public class ShadowMapCascade implements MemoryManaged {
 
@@ -18,11 +17,11 @@ public class ShadowMapCascade implements MemoryManaged {
 	private FBO fbo;
 	private int[] textureIds;
 	
-	public ShadowMapCascade(Window window, int numberOfCascades) {
+	public ShadowMapCascade(int numberOfCascades) {
 		textureIds = new int[numberOfCascades];
 		createTextures();
 		
-		setFbo(FBO.create(TEXTURE_SIZE, TEXTURE_SIZE, window));
+		setFbo(FBO.create(TEXTURE_SIZE, TEXTURE_SIZE));
 		
 		getFbo().bindFramebuffer();
 		

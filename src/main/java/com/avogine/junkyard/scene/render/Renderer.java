@@ -117,7 +117,7 @@ public class Renderer implements MemoryManaged {
 			shadowBoxes.add(shadowCascade);
 			zNear = RenderConstants.SHADOW_CASCADES[i];
 		}
-		shadowMapCascade = new ShadowMapCascade(window, RenderConstants.SHADOW_CASCADES.length);
+		shadowMapCascade = new ShadowMapCascade(RenderConstants.SHADOW_CASCADES.length);
 	}
 	
 	private void setupGuiShader() {
@@ -149,17 +149,17 @@ public class Renderer implements MemoryManaged {
 	}
 	
 	public void render(Window window, Camera camera, Stage stage) {
-		GL11.glViewport(0, 0, window.getWidth(), window.getHeight());
-
+		clear();
+		
 		shadowMapCascade.getFbo().bindFramebuffer();
 		shadowMapCascade.prepare();
 		renderShadows(window, camera, stage);
 		shadowMapCascade.getFbo().unbindFramebuffer();
 
+		GL11.glViewport(0, 0, window.getWidth(), window.getHeight());
+
 		// Update projection matrix once per render cycle
 		window.updateProjectionMatrix();
-		
-		clear();
 		
 		renderStage(window, camera, stage);
 		renderSkybox(window, camera, stage);
@@ -289,7 +289,7 @@ public class Renderer implements MemoryManaged {
 		guiMatrix.scale(new Vector3f(300f));
 		guiShader.projModelMatrix.loadMatrix(transformation.getOrthographic2DMatrix().mul(guiMatrix, new Matrix4f()));
 		
-		guiMesh.render();
+		//guiMesh.render();
 		
 		guiShader.stop();
 	}
