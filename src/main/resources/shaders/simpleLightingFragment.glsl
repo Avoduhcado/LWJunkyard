@@ -1,6 +1,6 @@
 #version 330
 
-const int MAX_CASCADES = 6;
+const int MAX_CASCADES = 3;
 
 in vec2 fragTextureCoords;
 in vec3 fragVertexNormal;

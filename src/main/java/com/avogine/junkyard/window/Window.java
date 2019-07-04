@@ -38,7 +38,7 @@ public class Window implements MemoryManaged {
 
 	private boolean hasFocus = true;
 
-	private Matrix4f projectionMatrix;
+	private final Matrix4f projectionMatrix;
 
 	private Input input;
 	private MusicBox musicBox;
@@ -52,6 +52,8 @@ public class Window implements MemoryManaged {
 		fov = WindowConstants.DEFAULT_FOV;
 		nearPlane = WindowConstants.DEFAULT_NEAR_PLANE;
 		farPlane = WindowConstants.DEFAULT_FAR_PLANE;
+		
+		projectionMatrix = new Matrix4f();
 		
 		refreshRate = WindowConstants.DEFAULT_REFRESH_RATE;
 		unfocusedRefreshRate = WindowConstants.DEFAULT_UNFOCUSED_REFRESH_RATE;
@@ -148,8 +150,6 @@ public class Window implements MemoryManaged {
 		//GL11.glEnable(GL43.GL_DEBUG_OUTPUT);
 
 		GL11.glClearColor((float) MathUtils.clamp((float) Math.random(), 0, 0.75f), (float) Math.random(), (float) Math.random(), 1);
-
-		projectionMatrix = new Matrix4f();
 
 		input = new Input(this);
 		musicBox = new MusicBox(this);

@@ -31,8 +31,8 @@ import com.avogine.junkyard.scene.render.data.Cube;
 import com.avogine.junkyard.scene.render.data.Line;
 import com.avogine.junkyard.scene.render.data.Mesh;
 import com.avogine.junkyard.scene.render.data.RawMesh;
-import com.avogine.junkyard.scene.render.data.ShadowBox;
-import com.avogine.junkyard.scene.render.data.ShadowMapCascade;
+import com.avogine.junkyard.scene.render.data.ShadowBuffer;
+import com.avogine.junkyard.scene.render.data.ShadowCascade;
 import com.avogine.junkyard.scene.render.load.TextureLoader;
 import com.avogine.junkyard.scene.render.shaders.ColorShader;
 import com.avogine.junkyard.scene.render.shaders.DepthShader;
@@ -60,8 +60,8 @@ public class Renderer implements MemoryManaged {
 	
 	private Map<Mesh, Collection<ComponentMap>> meshMap = new HashMap<>();
 	
-	private List<ShadowBox> shadowBoxes = new ArrayList<>();
-	private ShadowMapCascade shadowMapCascade;
+	private List<ShadowCascade> shadowCascades = new ArrayList<>();
+	private ShadowBuffer shadowBuffer;
 	private RawMesh guiMesh;
 	
 	// XXX
@@ -113,11 +113,11 @@ public class Renderer implements MemoryManaged {
 		
 		float zNear = window.getNearPlane();
 		for(int i = 0; i < RenderConstants.SHADOW_CASCADES.length; i++) {
-			ShadowBox shadowCascade = new ShadowBox(zNear, RenderConstants.SHADOW_CASCADES[i], window);
-			shadowBoxes.add(shadowCascade);
+			ShadowCascade shadowCascade = new ShadowCascade(zNear, RenderConstants.SHADOW_CASCADES[i]);
+			shadowCascades.add(shadowCascade);
 			zNear = RenderConstants.SHADOW_CASCADES[i];
 		}
-		shadowMapCascade = new ShadowMapCascade(RenderConstants.SHADOW_CASCADES.length);
+		shadowBuffer = new ShadowBuffer(RenderConstants.SHADOW_CASCADES.length);
 	}
 	
 	private void setupGuiShader() {
@@ -141,7 +141,7 @@ public class Renderer implements MemoryManaged {
 				0, 1, 2,
 				2, 3, 0
 		});
-		guiMesh = new RawMesh(rawVao, 2, shadowMapCascade.getTextureIds()[0]);
+		guiMesh = new RawMesh(rawVao, 2, shadowBuffer.getTextureIds()[0]);
 	}
 	
 	private void setupLineShader() {
@@ -151,10 +151,10 @@ public class Renderer implements MemoryManaged {
 	public void render(Window window, Camera camera, Stage stage) {
 		clear();
 		
-		shadowMapCascade.getFbo().bindFramebuffer();
-		shadowMapCascade.prepare();
+		shadowBuffer.getFbo().bindFramebuffer();
+		shadowBuffer.prepare();
 		renderShadows(window, camera, stage);
-		shadowMapCascade.getFbo().unbindFramebuffer();
+		shadowBuffer.getFbo().unbindFramebuffer();
 
 		GL11.glViewport(0, 0, window.getWidth(), window.getHeight());
 
@@ -164,7 +164,6 @@ public class Renderer implements MemoryManaged {
 		renderStage(window, camera, stage);
 		renderSkybox(window, camera, stage);
 
-		transformation.updateOrthographic2DMatrix(0, window.getWidth(), window.getHeight(), 0);
 		renderGui(window, camera);
 		renderText(window, camera);
 	}
@@ -176,17 +175,23 @@ public class Renderer implements MemoryManaged {
 		entityShader.projection.loadMatrix(window.getProjectionMatrix());
 		
 		// TODO This needs to be a uniform array
-		Matrix4f[] projectionViewArray = new Matrix4f[shadowBoxes.size()];
-		for(int i = 0; i < projectionViewArray.length; i++) {
-			projectionViewArray[i] = new Matrix4f();
-			projectionViewArray[i].set(shadowBoxes.get(i).getOrthoProjMatrix());
-			projectionViewArray[i].mul(shadowBoxes.get(i).getLightViewMatrix());
+//		Matrix4f[] projectionViewArray = new Matrix4f[shadowCascades.size()];
+//		for(int i = 0; i < projectionViewArray.length; i++) {
+//			projectionViewArray[i] = new Matrix4f();
+//			projectionViewArray[i].set(shadowCascades.get(i).getOrthoProjMatrix());
+//			projectionViewArray[i].mul(shadowCascades.get(i).getLightViewMatrix());
+//		}
+//		entityShader.shadowSpaceMatrices.loadMatrixArray(projectionViewArray);
+		for(int i = 0; i < RenderConstants.MAX_SHADOW_CASCADES; i++) {
+			ShadowCascade shadowCascade = shadowCascades.get(i);
+			entityShader.orthoProjectionMatrices.loadMatrix(shadowCascade.getOrthoProjMatrix(), i);
+			entityShader.lightViewMatrices.loadMatrix(shadowCascade.getLightViewMatrix(), i);
+			entityShader.cascadeFarPlanes[i].loadFloat(RenderConstants.SHADOW_CASCADES[i]);
 		}
-		entityShader.shadowSpaceMatrices.loadMatrixArray(projectionViewArray);
 
-		shadowMapCascade.bindTextures(GL13.GL_TEXTURE1);
-		
 		renderLights(camera, stage.getStageLighting(), stage.getCast());
+
+		shadowBuffer.bindTextures(GL13.GL_TEXTURE1);
 		
 		meshMap.clear();
 		for(ComponentMap entity : stage.getCast().getEntitiesWithComponents(Model.class, Body.class)) {
@@ -285,9 +290,9 @@ public class Renderer implements MemoryManaged {
 		guiShader.start();
 		
 		Matrix4f guiMatrix = new Matrix4f();
-		guiMatrix.translate(new Vector3f(600f, 400f, 0));
+		guiMatrix.translate(new Vector3f(150, 150, 0));
 		guiMatrix.scale(new Vector3f(300f));
-		guiShader.projModelMatrix.loadMatrix(transformation.getOrthographic2DMatrix().mul(guiMatrix, new Matrix4f()));
+		guiShader.projModelMatrix.loadMatrix(transformation.getOrtho2DProjectionMatrix(0, window.getWidth(), window.getHeight(), 0).mul(guiMatrix, new Matrix4f()));
 		
 		//guiMesh.render();
 		
@@ -311,7 +316,7 @@ public class Renderer implements MemoryManaged {
 		textMatrix.rotateXYZ(text.rotation);
 		textMatrix.translate((float) -text.getBoundingBox().getWidth() / 2, (float) -text.getBoundingBox().getHeight() / 2, 0);
 		textMatrix.scale(text.scale);
-		fontShader.projModelMatrix.loadMatrix(transformation.getOrthographic2DMatrix().mul(textMatrix, new Matrix4f()));
+		fontShader.projModelMatrix.loadMatrix(transformation.getOrtho2DProjectionMatrix(0, window.getWidth(), window.getHeight(), 0).mul(textMatrix, new Matrix4f()));
 
 		colorLerpTime = MathUtils.clamp(colorLerpTime + (float) (Theater.getDelta() * colorLerpSlope), 0f, colorLerpDuration);
 		if(colorLerpTime == colorLerpDuration) {
@@ -354,24 +359,26 @@ public class Renderer implements MemoryManaged {
 //			flip = 1;
 //		}
 		
-		for(int i = 0; i < shadowBoxes.size(); i++) {
-			ShadowBox cascade = shadowBoxes.get(i);
-			cascade.update(camera);
+		DirectionalLight directionalLight = null;
+		for(ComponentMap entity : stage.getCast().getEntitiesWithComponent(DirectionalLight.class, 1)) {
+			directionalLight = entity.getAs(DirectionalLight.class);
+		}
+		
+		for(int i = 0; i < shadowCascades.size(); i++) {
+			ShadowCascade cascade = shadowCascades.get(i);
+			cascade.update(window, camera.getViewMatrix(), directionalLight);
 			
-			shadowMapCascade.bindTexture(i);
+			shadowBuffer.bindTexture(i);
 			GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
 			
-			for(ComponentMap entity : stage.getCast().getEntitiesWithComponent(DirectionalLight.class, 1)) {
-				DirectionalLight directionalLight = entity.getAs(DirectionalLight.class);
-				cascade.updateLightView(directionalLight.getDirection().negate(new Vector3f()));
-			}
-			
-			Matrix4f projectionViewMatrix = new Matrix4f();
-			projectionViewMatrix.set(cascade.getOrthoProjMatrix());
-			projectionViewMatrix.mul(cascade.getLightViewMatrix());
+			depthShader.orthoProjectionMatrix.loadMatrix(cascade.getOrthoProjMatrix());
+			depthShader.lightViewMatrix.loadMatrix(cascade.getLightViewMatrix());
 			
 			meshMap.clear();
 			for(ComponentMap entity : stage.getCast().getEntitiesWithComponents(Model.class, Body.class)) {
+//				if(entity.getAs(Model.class).getClass().isAssignableFrom(TerrainModel.class)) {
+//					continue;
+//				}
 				for(Mesh mesh : entity.getAs(Model.class).getMeshes()) {
 					meshMap.computeIfAbsent(mesh, k -> new HashSet<>()).add(entity);
 				}
@@ -386,7 +393,7 @@ public class Renderer implements MemoryManaged {
 				mesh.renderList(meshMap.get(mesh), (entity) -> {
 					Body body = entity.getAs(Body.class);
 					Model model = entity.getAs(Model.class);
-					depthShader.modelViewProjectionMatrix.loadMatrix(projectionViewMatrix.mul(transformation.buildModelMatrix(body), new Matrix4f()));
+					depthShader.modelMatrix.loadMatrix(transformation.buildModelMatrix(body));
 					
 					model.prepare();
 					
@@ -412,7 +419,7 @@ public class Renderer implements MemoryManaged {
 		fontShader.cleanUp();
 		colorShader.cleanUp();
 		
-		shadowMapCascade.cleanUp();
+		shadowBuffer.cleanUp();
 	}
 
 }

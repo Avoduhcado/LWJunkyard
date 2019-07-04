@@ -9,7 +9,10 @@ in vec3 normal;
 in vec4 weights;
 in ivec4 jointIndices;
 
-uniform mat4 modelViewProjection;
+uniform mat4 modelMatrix;
+uniform mat4 lightViewMatrix;
+uniform mat4 orthoProjectionMatrix;
+//uniform mat4 modelViewProjection;
 uniform mat4 jointsMatrix[MAX_JOINTS];
 
 out vec2 fragTextureCoords;
@@ -31,7 +34,8 @@ void main() {
 		totalLocalPos = vec4(position, 1.0);
 	}
 
-    gl_Position = modelViewProjection * totalLocalPos;
+    //gl_Position = modelViewProjection * totalLocalPos;
+    gl_Position = orthoProjectionMatrix * lightViewMatrix * modelMatrix * totalLocalPos;
     
     fragTextureCoords = textureCoords;
     

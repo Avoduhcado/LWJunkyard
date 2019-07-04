@@ -10,22 +10,22 @@ import org.lwjgl.opengl.GL32;
 import com.avogine.junkyard.memory.MemoryManaged;
 import com.avogine.junkyard.scene.render.util.FBO;
 
-public class ShadowMapCascade implements MemoryManaged {
+public class ShadowBuffer implements MemoryManaged {
 
 	public static final int TEXTURE_SIZE = 4096;
 	
 	private FBO fbo;
 	private int[] textureIds;
 	
-	public ShadowMapCascade(int numberOfCascades) {
-		textureIds = new int[numberOfCascades];
-		createTextures();
-		
+	public ShadowBuffer(int totalCascades) {
 		setFbo(FBO.create(TEXTURE_SIZE, TEXTURE_SIZE));
 		
-		getFbo().bindFramebuffer();
+		textureIds = new int[totalCascades];
+		createTextures();
 		
+		getFbo().bindFramebuffer();
 		bindTexture(0);
+		
 		GL11.glDrawBuffer(GL11.GL_NONE);
 		GL11.glReadBuffer(GL11.GL_NONE);
 		
@@ -42,10 +42,6 @@ public class ShadowMapCascade implements MemoryManaged {
 			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
 		}
 	}
-
-	public void prepare() {
-		GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
-	}
 	
 	public void bindTexture(int textureUnit) {
 		GL32.glFramebufferTexture(GL30.GL_FRAMEBUFFER, GL30.GL_DEPTH_ATTACHMENT, textureIds[textureUnit], 0);
@@ -58,6 +54,10 @@ public class ShadowMapCascade implements MemoryManaged {
 		}
 	}
 	
+	public void prepare() {
+		GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
+	}
+	
 	public FBO getFbo() {
 		return fbo;
 	}
@@ -65,7 +65,7 @@ public class ShadowMapCascade implements MemoryManaged {
 	public void setFbo(FBO fbo) {
 		this.fbo = fbo;
 	}
-	
+
 	public int[] getTextureIds() {
 		return textureIds;
 	}
@@ -75,5 +75,5 @@ public class ShadowMapCascade implements MemoryManaged {
 		fbo.cleanUp();
 		GL11.glDeleteTextures(textureIds);
 	}
-
+	
 }

@@ -27,6 +27,8 @@ public class UniformMat4Array extends Uniform {
 		}
 	}
 	
-	
+	public void loadMatrix(Matrix4f matrix, int index) {
+		matrixUniforms[index].loadMatrix(matrix);
+	}
 
 }

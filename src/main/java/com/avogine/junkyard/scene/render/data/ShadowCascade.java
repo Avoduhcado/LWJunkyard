@@ -4,6 +4,8 @@ import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 
+import com.avogine.junkyard.scene.entity.light.DirectionalLight;
+import com.avogine.junkyard.scene.util.Transformation;
 import com.avogine.junkyard.window.Window;
 
 public class ShadowCascade {
@@ -51,7 +53,7 @@ public class ShadowCascade {
 		return orthoProjMatrix;
 	}
 
-	public void update(Window window, Matrix4f viewMatrix, Vector3f lightDirection) {
+	public void update(Window window, Matrix4f viewMatrix, DirectionalLight light) {
 		// Build projection view matrix for this cascade
 		float aspectRatio = (float) window.getWidth() / (float) window.getHeight();
 		projViewMatrix.setPerspective(window.getFov(), aspectRatio, zNear, zFar);
@@ -71,6 +73,7 @@ public class ShadowCascade {
 		}
 
 		// Go back from the centroid up to max.z - min.z in the direction of light
+		Vector3f lightDirection = light.getDirection();
 		Vector3f lightPosInc = new Vector3f().set(lightDirection);
 		float distance = maxZ - minZ;
 		lightPosInc.mul(distance);
@@ -86,9 +89,8 @@ public class ShadowCascade {
 	private void updateLightViewMatrix(Vector3f lightDirection, Vector3f lightPosition) {
 		float lightAngleX = (float) Math.toDegrees(Math.acos(lightDirection.z));
 		float lightAngleY = (float) Math.toDegrees(Math.asin(lightDirection.x));
-		lightViewMatrix.rotateX((float)Math.toRadians(lightAngleX))
-				.rotateY((float)Math.toRadians(lightAngleY))
-				.translate(-lightDirection.x, -lightDirection.y, -lightDirection.z);
+		float lightAngleZ = 0;
+		Transformation.updateGenericViewMatrix(lightPosition, new Vector3f(lightAngleX, lightAngleY, lightAngleZ), lightViewMatrix);
 	}
 
 	private void updateLightProjectionMatrix() {

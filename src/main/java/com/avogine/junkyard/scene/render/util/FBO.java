@@ -98,6 +98,14 @@ public class FBO implements MemoryManaged {
 		return fboId;
 	}
 	
+	public int getWidth() {
+		return width;
+	}
+	
+	public int getHeight() {
+		return height;
+	}
+	
 	public int getColorTexture() {
 		return colorTexture;
 	}

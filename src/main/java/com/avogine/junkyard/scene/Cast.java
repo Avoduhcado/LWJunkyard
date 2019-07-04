@@ -16,6 +16,7 @@ public class Cast {
 	public static final int DUMMY_LIGHT_ID = -3;
 
 	private AtomicInteger aInt;
+	// TODO Investigate why this isn't Map<Class, EntityComponent>
 	private Map<Integer, ComponentMap> entityComponentMap = new HashMap<>();
 	
 	public Cast() {

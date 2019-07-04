@@ -40,10 +40,16 @@ public class SimpleLightingShader extends ShaderProgram {
 	// Model material
 	public MaterialStruct material = new MaterialStruct("material");
 	// Shadows
-	public UniformSampler[] shadowMaps = new UniformSampler[RenderConstants.MAX_SHADOW_CASCADES];
-	public UniformMat4Array shadowSpaceMatrices = new UniformMat4Array("shadowSpaceMatrix", RenderConstants.MAX_SHADOW_CASCADES);
+	public UniformMat4Array orthoProjectionMatrices = new UniformMat4Array("orthoProjectionMatrix", RenderConstants.MAX_SHADOW_CASCADES);
+	public UniformMat4Array lightViewMatrices = new UniformMat4Array("lightViewMatrix", RenderConstants.MAX_SHADOW_CASCADES);
 	public UniformFloat[] cascadeFarPlanes = new UniformFloat[RenderConstants.MAX_SHADOW_CASCADES];
+	public UniformSampler[] shadowMaps = new UniformSampler[RenderConstants.MAX_SHADOW_CASCADES];
 	
+//	
+//	public UniformSampler[] shadowMaps = new UniformSampler[RenderConstants.MAX_SHADOW_CASCADES];
+//	public UniformMat4Array shadowSpaceMatrices = new UniformMat4Array("shadowSpaceMatrix", RenderConstants.MAX_SHADOW_CASCADES);
+//	public UniformFloat[] cascadeFarPlanes = new UniformFloat[RenderConstants.MAX_SHADOW_CASCADES];
+//	
 	public SimpleLightingShader(String vertexFile, String fragmentFile, String...inVariables) {
 		super(vertexFile, fragmentFile, inVariables);
 		
@@ -62,7 +68,7 @@ public class SimpleLightingShader extends ShaderProgram {
 			cascadeFarPlanes[i] = new UniformFloat("cascadeFarPlanes[" + i + "]");
 		}
 		
-		List<Uniform> uniforms = new ArrayList<>(Arrays.asList(colorTexture, model, view, projection, ambientLight, specularPower, jointsMatrix, shadowSpaceMatrices));
+		List<Uniform> uniforms = new ArrayList<>(Arrays.asList(colorTexture, model, view, projection, ambientLight, specularPower, jointsMatrix, orthoProjectionMatrices, lightViewMatrices));
 		for(PointLightStruct pointLight : pointLights) {
 			uniforms.addAll(pointLight.getAllUniforms());
 		}
@@ -76,7 +82,7 @@ public class SimpleLightingShader extends ShaderProgram {
 		uniforms.addAll(material.getAllUniforms());
 		storeAllUniformLocations(uniforms.stream().toArray(Uniform[]::new));
 		connectTextureUnits();
-		loadShadowConstants();
+		//loadShadowConstants();
 	}
 	
 	protected void connectTextureUnits() {
@@ -88,12 +94,12 @@ public class SimpleLightingShader extends ShaderProgram {
 		super.stop();
 	}
 	
-	protected void loadShadowConstants() {
-		super.start();
-		for(int i = 0; i < cascadeFarPlanes.length; i++) {
-			cascadeFarPlanes[i].loadFloat(RenderConstants.SHADOW_CASCADES[i]);
-		}
-		super.stop();
-	}
+//	protected void loadShadowConstants() {
+//		super.start();
+//		for(int i = 0; i < cascadeFarPlanes.length; i++) {
+//			cascadeFarPlanes[i].loadFloat(RenderConstants.SHADOW_CASCADES[i]);
+//		}
+//		super.stop();
+//	}
 
 }

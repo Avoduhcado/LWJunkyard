@@ -8,13 +8,16 @@ import com.avogine.junkyard.scene.render.util.RenderConstants;
 
 public class DepthShader extends ShaderProgram {
 
-	public UniformMatrix modelViewProjectionMatrix = new UniformMatrix("modelViewProjection");
+	//public UniformMatrix modelViewProjectionMatrix = new UniformMatrix("modelViewProjection");
+	public UniformMatrix modelMatrix = new UniformMatrix("modelMatrix");
+	public UniformMatrix lightViewMatrix = new UniformMatrix("lightViewMatrix");
+	public UniformMatrix orthoProjectionMatrix = new UniformMatrix("orthoProjectionMatrix");
 	public UniformMat4Array jointsMatrixArray = new UniformMat4Array("jointsMatrix", RenderConstants.MAX_JOINTS);
 	public UniformSampler modelTexture = new UniformSampler("modelTexture");
 	
 	public DepthShader(String vertexFile, String fragmentFile, String...inVariables) {
 		super(vertexFile, fragmentFile, inVariables);
-		storeAllUniformLocations(modelViewProjectionMatrix, jointsMatrixArray, modelTexture);
+		storeAllUniformLocations(modelMatrix, lightViewMatrix, orthoProjectionMatrix, jointsMatrixArray, modelTexture);
 		connectTextureUnits();
 	}
 	

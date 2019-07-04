@@ -1,59 +1,40 @@
 package com.avogine.junkyard.scene.util;
 
 import org.joml.Matrix4f;
+import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 import com.avogine.junkyard.scene.entity.Body;
-import com.avogine.junkyard.scene.render.data.ShadowBox;
 
 public class Transformation {
 
-	private final Matrix4f orthographic;
-	private final Matrix4f orthographic2D;
+	/** A matrix used for transforming an object in model space */
+	private final Matrix4f modelMatrix;
 
-	private final Matrix4f model;
+	/** A matrix used for transforming an object in model+view space */
+	private final Matrix4f modelViewMatrix;
 
-	public Transformation() {
-		orthographic = new Matrix4f();
-		orthographic2D = new Matrix4f();
+	/** A matrix used for transforming an object in model+lightView space */
+	private final Matrix4f modelLightViewMatrix;
 
-		model = new Matrix4f();
-	}
+	/** A matrix used for transforming the view to lightView space */
+	private final Matrix4f lightViewMatrix;
 
-	public Matrix4f updateOrthographic2DMatrix(float left, float right, float bottom, float top) {
-		orthographic2D.setOrtho2D(left, right, bottom, top);
-		return orthographic;
-	}
+	/** A matrix used for transforming flat objects in 2D orthographic space */
+	private final Matrix4f ortho2DMatrix;
 
-	public Matrix4f updateOrthographicMatrix(float left, float right, float bottom, float top, float zNear, float zFar) {
-		orthographic.setOrtho(left, right, bottom, top, zNear, zFar);
-		return orthographic;
-	}
-
-	/**
-	 * Creates the orthographic projection matrix. This projection matrix
-	 * basically sets the width, length and height of the "view cuboid", based
-	 * on the values that were calculated in the {@link ShadowBox} class.
-	 * 
-	 * @param width shadow box width.
-	 * @param height shadow box height.
-	 * @param length shadow box length.
-	 */
-	public void updateOrthographicMatrix(float width, float height, float length) {
-		orthographic.identity();
-		orthographic.m00(2f / width);
-		orthographic.m11(2f / height);
-		orthographic.m22(-2f / length);
-		orthographic.m33(1);
-	}
-
-	public Matrix4f buildModelMatrix(Body body) {
-		return model.translationRotateScale(
-				body.getPosition().x, body.getPosition().y, body.getPosition().z,
-				body.getRotation().x, body.getRotation().y, body.getRotation().z, 1,
-				body.getScale().x, body.getScale().y, body.getScale().z);
-	}
+	/** A matrix used for transforming objects in orthographic model space */
+	private final Matrix4f orthoModelMatrix;
 	
+	public Transformation() {
+		modelMatrix = new Matrix4f();
+		modelViewMatrix = new Matrix4f();
+		modelLightViewMatrix = new Matrix4f();
+		lightViewMatrix = new Matrix4f();
+		ortho2DMatrix = new Matrix4f();
+		orthoModelMatrix = new Matrix4f();
+	}
+
 	public static Matrix4f updateGenericViewMatrix(Vector3f position, Vector3f rotation, Matrix4f matrix) {
 		// First do the rotation so camera rotates over its position
 		return matrix.rotationX((float)Math.toRadians(rotation.x))
@@ -61,16 +42,48 @@ public class Transformation {
 				.translate(-position.x, -position.y, -position.z);
 	}
 
-	public Matrix4f getOrthographicMatrix() {
-		return orthographic;
+	public final Matrix4f getOrtho2DProjectionMatrix(float left, float right, float bottom, float top) {
+		return ortho2DMatrix.setOrtho2D(left, right, bottom, top);
 	}
 
-	public Matrix4f getOrthographic2DMatrix() {
-		return orthographic2D;
+	public Matrix4f buildModelMatrix(Body body) {
+		Quaternionf rotation = body.getRotation();
+		return modelMatrix.translationRotateScale(
+				body.getPosition().x, body.getPosition().y, body.getPosition().z,
+				rotation.x, rotation.y, rotation.z, rotation.w,
+				body.getScale().x, body.getScale().y, body.getScale().z);
 	}
 
-	public Matrix4f getModel() {
-		return model;
+	public Matrix4f buildModelViewMatrix(Body body, Matrix4f viewMatrix) {
+		return buildModelViewMatrix(buildModelMatrix(body), viewMatrix);
 	}
 
+	public Matrix4f buildModelViewMatrix(Matrix4f modelMatrix, Matrix4f viewMatrix) {
+		return viewMatrix.mulAffine(modelMatrix, modelViewMatrix);
+	}
+
+	public Matrix4f buildModelLightViewMatrix(Body body, Matrix4f lightViewMatrix) {
+		return buildModelViewMatrix(buildModelMatrix(body), lightViewMatrix);
+	}
+
+	public Matrix4f buildModelLightViewMatrix(Matrix4f modelMatrix, Matrix4f lightViewMatrix) {
+		return lightViewMatrix.mulAffine(modelMatrix, modelLightViewMatrix);
+	}
+
+	public Matrix4f getLightViewMatrix() {
+		return lightViewMatrix;
+	}
+
+	public void setLightViewMatrix(Matrix4f lightViewMatrix) {
+		this.lightViewMatrix.set(lightViewMatrix);
+	}
+
+	public Matrix4f updateLightViewMatrix(Vector3f position, Vector3f rotation) {
+		return updateGenericViewMatrix(position, rotation, lightViewMatrix);
+	}
+
+	public Matrix4f buildOrthoProjModelMatrix(Body body, Matrix4f orthoMatrix) {
+		return orthoMatrix.mulOrthoAffine(buildModelMatrix(body), orthoModelMatrix);
+	}
+	
 }

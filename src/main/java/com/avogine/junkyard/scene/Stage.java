@@ -101,8 +101,17 @@ public class Stage extends Scene implements MemoryManaged {
 		Model treeModel = new StaticModel(entity, new ModelInfo("bigTree.obj"));
 		cast.addComponent(entity, treeModel);
 		Body treeBody = new StaticBody(entity, new Vector3f(-250, -5, -200));
-		treeBody.setScale(new Vector3f(5f));
+		treeBody.setScale(new Vector3f(15f));
 		cast.addComponent(entity, treeBody);
+		
+		for(int i = 0; i < 50; i++) {
+			entity = cast.newEntity();
+			cast.addComponent(entity, treeModel);
+			treeBody = new StaticBody(entity, new Vector3f((float) (Math.random() * 2000) - 1000, (float) (Math.random() * 10) - 25, (float) (Math.random() * 2000) - 1000));
+			treeBody.setScale(new Vector3f((float) (Math.random() * 5) + 10));
+			treeBody.getRotation().rotateY((float) Math.toRadians((Math.random() * 360)));
+			cast.addComponent(entity, treeBody);
+		}
 		
 		/* TERRAIN */
 		int ground;
@@ -172,7 +181,7 @@ public class Stage extends Scene implements MemoryManaged {
 		// DirectionalLight
 		entity = cast.newEntity();
 		lightColor = new Vector3f(1f, 1f, 1f);
-		lightDirection = new Vector3f(0f, -1f, 1f);
+		lightDirection = new Vector3f(0f, 1f, 0.2f);
 		lightIntensity = 1f;
 		DirectionalLight directionalLight = new DirectionalLight(entity, lightColor, lightDirection, lightIntensity);
 		cast.addComponent(entity, directionalLight);
